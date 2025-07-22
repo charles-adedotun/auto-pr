@@ -187,8 +187,7 @@ The MCP server respects all Auto PR configuration options. You can:
       "command": "auto-pr",
       "args": ["mcp"],
       "env": {
-        "AUTO_PR_AI_PROVIDER": "gemini",
-        "AUTO_PR_GEMINI_API_KEY": "your-api-key",
+        "AUTO_PR_AI_PROVIDER": "claude",
         "AUTO_PR_GITHUB_DRAFT": "true",
         "AUTO_PR_GIT_COMMIT_LIMIT": "20"
       }

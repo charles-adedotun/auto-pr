@@ -59,23 +59,14 @@ func initConfig() {
 	// Bind environment variables for AI configuration
 	_ = viper.BindEnv("ai.provider", "AUTO_PR_AI_PROVIDER")
 	_ = viper.BindEnv("ai.model", "AUTO_PR_AI_MODEL")
-	_ = viper.BindEnv("ai.api_key", "AUTO_PR_AI_API_KEY")
 	_ = viper.BindEnv("ai.max_tokens", "AUTO_PR_AI_MAX_TOKENS")
 	_ = viper.BindEnv("ai.temperature", "AUTO_PR_AI_TEMPERATURE")
-	_ = viper.BindEnv("ai.project_id", "AUTO_PR_AI_PROJECT_ID")
 
 	// Claude specific
 	_ = viper.BindEnv("ai.claude.cli_path", "AUTO_PR_CLAUDE_CLI_PATH")
 	_ = viper.BindEnv("ai.claude.model", "AUTO_PR_CLAUDE_MODEL")
 	_ = viper.BindEnv("ai.claude.max_tokens", "AUTO_PR_CLAUDE_MAX_TOKENS")
 	_ = viper.BindEnv("ai.claude.use_session", "AUTO_PR_CLAUDE_USE_SESSION")
-
-	// Gemini specific
-	_ = viper.BindEnv("ai.gemini.api_key", "AUTO_PR_GEMINI_API_KEY", "GEMINI_API_KEY")
-	_ = viper.BindEnv("ai.gemini.project_id", "AUTO_PR_GEMINI_PROJECT_ID")
-	_ = viper.BindEnv("ai.gemini.model", "AUTO_PR_GEMINI_MODEL")
-	_ = viper.BindEnv("ai.gemini.max_tokens", "AUTO_PR_GEMINI_MAX_TOKENS")
-	_ = viper.BindEnv("ai.gemini.temperature", "AUTO_PR_GEMINI_TEMPERATURE")
 
 	// GitHub configuration
 	_ = viper.BindEnv("platforms.github.draft", "AUTO_PR_GITHUB_DRAFT")

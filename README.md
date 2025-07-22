@@ -4,11 +4,11 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/charles-adedotun/auto-pr)](https://goreportcard.com/report/github.com/charles-adedotun/auto-pr)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Auto PR is a powerful CLI tool that automatically generates pull requests and merge requests using AI. It analyzes your git changes, commit history, and repository context to create meaningful PR/MR titles, descriptions, and metadata for GitHub and GitLab.
+Auto PR is a powerful CLI tool that automatically generates pull requests and merge requests using Claude Code. It analyzes your git changes, commit history, and repository context to create meaningful PR/MR titles, descriptions, and metadata for GitHub and GitLab.
 
 ## Features
 
-- 🤖 **AI-Powered**: Supports both Claude CLI and Google Gemini 2.5 Flash for intelligent PR/MR generation
+- 🤖 **AI-Powered**: Uses Claude Code for intelligent PR/MR generation
 - 🔍 **Smart Analysis**: Analyzes git commits, diffs, and repository context
 - 🌐 **Multi-Platform**: Supports both GitHub and GitLab
 - 📝 **Template System**: Customizable templates for different change types
@@ -39,9 +39,7 @@ brew install auto-pr
 
 - Git repository with remote origin
 - GitHub CLI (`gh`) for GitHub repositories, or GitLab CLI (`glab`) for GitLab
-- **AI Provider** (choose one):
-  - **Claude CLI** (recommended): `claude` command available in PATH with authentication
-  - **Google Gemini**: API key for Gemini 2.5 Flash
+- **Claude Code**: `claude` command available in PATH with authentication
 
 ### Basic Usage
 
@@ -50,19 +48,32 @@ brew install auto-pr
    auto-pr config init
    ```
 
-2. **Create a pull request:**
+2. **Super Simple Workflow:**
    ```bash
-   # Basic usage - analyzes current branch
-   auto-pr create
+   # The ultimate shortcut - does everything!
+   auto-pr ship
+   # This will: stage → commit → push → create PR
    
-   # Preview without creating
-   auto-pr create --dry-run
+   # Other simple aliases:
+   auto-pr go          # same as ship
+   auto-pr send        # same as ship
+   auto-pr deploy      # same as ship
+   ```
+
+3. **Individual Commands:**
+   ```bash
+   # Smart commit with AI message
+   auto-pr cm -a       # stage all & commit
+   auto-pr commit -a   # same thing
    
-   # Interactive mode with confirmation
-   auto-pr create --interactive
+   # Create PR/MR
+   auto-pr pr          # create pull request
+   auto-pr mr          # create merge request
+   auto-pr create      # same thing
    
-   # Create as draft
-   auto-pr create --draft
+   # Preview before doing anything
+   auto-pr ship --dry-run
+   auto-pr cm --dry-run -a
    ```
 
 ## Configuration
@@ -71,21 +82,15 @@ Auto PR uses a configuration file at `~/.auto-pr/config.yaml`:
 
 ```yaml
 ai:
-  provider: "auto"  # auto-detect available AI service, or specify "claude" or "gemini"
+  provider: "claude"  # Uses Claude Code
   max_tokens: 4096
   temperature: 0.7
   
-  # Claude CLI configuration (preferred)
+  # Claude Code configuration
   claude:
     cli_path: "claude"  # auto-detected if in PATH
     model: "claude-3-5-sonnet-20241022"
     use_session: true  # use claude CLI session mode
-  
-  # Gemini API configuration (fallback)
-  gemini:
-    api_key: "${GEMINI_API_KEY}"
-    model: "gemini-2.5-flash"
-    project_id: "${GOOGLE_CLOUD_PROJECT_ID}"
 
 platforms:
   github:
@@ -113,24 +118,16 @@ Auto PR supports extensive configuration through environment variables. All conf
 
 ```bash
 # AI Configuration
-export AUTO_PR_AI_PROVIDER="claude"              # AI provider: "claude", "gemini", or "auto"
+export AUTO_PR_AI_PROVIDER="claude"              # AI provider: "claude"
 export AUTO_PR_AI_MODEL="claude-3-5-sonnet"      # Override default model
 export AUTO_PR_AI_MAX_TOKENS="4096"              # Maximum tokens for AI response
 export AUTO_PR_AI_TEMPERATURE="0.7"              # AI temperature (0-2)
 
-# Claude CLI Configuration
+# Claude Code Configuration
 export AUTO_PR_CLAUDE_CLI_PATH="claude"          # Path to Claude CLI
 export AUTO_PR_CLAUDE_MODEL="claude-3-5-sonnet-20241022"
 export AUTO_PR_CLAUDE_MAX_TOKENS="4096"
 export AUTO_PR_CLAUDE_USE_SESSION="true"         # Use Claude session mode
-
-# Gemini API Configuration
-export AUTO_PR_GEMINI_API_KEY="your-api-key"     # Gemini API key
-export GEMINI_API_KEY="your-api-key"             # Alternative: standard Gemini env var
-export AUTO_PR_GEMINI_PROJECT_ID="project-id"    # Google Cloud project ID
-export AUTO_PR_GEMINI_MODEL="gemini-2.5-flash"
-export AUTO_PR_GEMINI_MAX_TOKENS="2048"
-export AUTO_PR_GEMINI_TEMPERATURE="0.7"
 
 # GitHub Configuration
 export AUTO_PR_GITHUB_DRAFT="false"              # Create PRs as draft
@@ -154,17 +151,11 @@ export AUTO_PR_TEMPLATES_DIR="~/.auto-pr/templates"  # Custom templates director
 export AUTO_PR_CONFIG="/path/to/config.yaml"     # Custom config file location
 ```
 
-### AI Provider Setup
+### Claude Code Setup
 
-#### Claude CLI (Recommended)
-1. Install Claude CLI: Follow instructions at [Claude CLI documentation](https://docs.anthropic.com/en/docs/claude-code)
+1. Install Claude Code: Follow instructions at [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code)
 2. Authenticate: The claude CLI should already be authenticated if you're using it
-3. Auto PR will automatically detect and use your Claude CLI setup
-
-#### Google Gemini
-1. Get an API key from [Google AI Studio](https://aistudio.google.com/)
-2. Set your API key in the environment or configuration file
-3. Optionally set your Google Cloud Project ID for enhanced features
+3. Auto PR will automatically detect and use your Claude Code setup
 
 ## Commands
 
@@ -208,35 +199,50 @@ auto-pr template delete <name>    # Delete template
 
 ## Examples
 
-### Feature Development
+### Super Quick Workflow
 ```bash
-# Work on your feature
-git checkout -b feature/user-authentication
-# ... make changes ...
-git commit -m "Add user authentication system"
+# Make your changes, then ship everything in one command!
+git checkout -b feature/user-auth
+# ... edit files ...
+auto-pr ship                    # stages, commits, pushes, creates PR
 
-# Create PR with feature template
-auto-pr create --template feature --reviewer alice,bob
+# Want to preview first?
+auto-pr ship --dry-run          # see what would happen
+
+# Custom commit message
+auto-pr ship -m "Add user authentication system"
+
+# Create as draft with reviewers
+auto-pr ship --draft --reviewer alice,bob
 ```
 
-### Bug Fix
+### Step by Step
 ```bash
-# Work on bug fix
-git checkout -b fix/login-error
-# ... make changes ...
-git commit -m "Fix login validation error"
+# Just commit changes (with AI message)
+auto-pr cm -a                   # stage all and commit
 
-# Create PR as draft for review
-auto-pr create --draft --template bugfix
+# Just create PR (assumes you already committed)
+auto-pr pr                      # create pull request
+
+# Commit with custom message
+auto-pr cm -a -m "Fix bug in login system"
+
+# Commit and push (but no PR)
+auto-pr cm -a --push
 ```
 
-### Review Before Creating
+### Advanced Usage
 ```bash
-# Preview what would be created
-auto-pr create --dry-run --verbose
+# Ship without creating PR (just commit & push)
+auto-pr ship --no-pr
 
-# Interactive mode for confirmation
-auto-pr create --interactive
+# Ship without pushing (just stage & commit)
+auto-pr ship --no-push
+
+# Different aliases for ship
+auto-pr go                      # same as ship
+auto-pr send                    # same as ship
+auto-pr deploy                  # same as ship
 ```
 
 ## Templates
@@ -292,24 +298,14 @@ conditions:
 
 ## AI Integration
 
-Auto PR supports multiple AI providers for flexibility and convenience:
+Auto PR uses Claude Code for intelligent pull request generation:
 
-### Claude CLI (Recommended)
-- **Zero Configuration**: Leverages your existing Claude CLI setup
+### Claude Code Integration
+- **Zero Configuration**: Leverages your existing Claude Code setup
 - **Session Support**: Uses Claude CLI session mode for better context retention
 - **Local Integration**: Works seamlessly with local development workflow
 - **High Quality**: Latest Claude models for superior PR/MR generation
-
-### Google Gemini 2.5 Flash
-- **API-Based**: Direct integration with Google's Gemini API
-- **Cost-Effective**: Optimized for high-volume usage
-- **Fast Response**: Quick generation for immediate feedback
-- **Customizable**: Fine-tuned prompts and temperature settings
-
-### Auto-Detection
-- **Smart Selection**: Automatically chooses the best available AI provider
-- **Fallback Support**: Falls back to secondary provider if primary fails
-- **Configuration-Free**: Works out of the box with minimal setup
+- **Automatic Detection**: Automatically detects and uses your Claude Code installation
 
 ### Context Analysis
 Auto PR analyzes:
@@ -396,9 +392,8 @@ go test ./...
 - For GitLab: Run `glab auth login`
 
 **"AI API error"**
-- For Claude CLI: Ensure `claude --version` works and you're authenticated
-- For Gemini: Check your API key is set: `echo $GEMINI_API_KEY`
-- Verify API quotas and billing in Google Cloud Console (for Gemini)
+- For Claude Code: Ensure `claude --version` works and you're authenticated
+- Verify your Claude Code setup and authentication status
 
 ### Debug Mode
 ```bash
@@ -414,4 +409,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Cobra](https://github.com/spf13/cobra) for CLI framework
 - [Viper](https://github.com/spf13/viper) for configuration management
 - [GitHub CLI](https://github.com/cli/cli) and [GitLab CLI](https://gitlab.com/gitlab-org/cli) for platform integration
-- [Claude CLI](https://docs.anthropic.com/en/docs/claude-code) and [Google Gemini](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini) for AI capabilities
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) for AI capabilities

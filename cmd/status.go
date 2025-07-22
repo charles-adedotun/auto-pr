@@ -110,16 +110,9 @@ func runStatus(cmd *cobra.Command, args []string) error {
 
 	// Check Claude CLI
 	if isClaudeAvailable() {
-		fmt.Println("   ✅ Claude CLI available")
+		fmt.Println("   ✅ Claude Code available")
 	} else {
-		fmt.Println("   ❌ Claude CLI not found")
-	}
-
-	// Check for Gemini API key
-	if hasGeminiAPIKey() {
-		fmt.Println("   ✅ Gemini API key configured")
-	} else {
-		fmt.Println("   ❌ Gemini API key not configured")
+		fmt.Println("   ❌ Claude Code not found - Please install and configure Claude Code")
 	}
 
 	// Check configuration
@@ -168,16 +161,6 @@ func isClaudeAvailable() bool {
 	return len(ai.GetAvailableProviders()) > 0
 }
 
-func hasGeminiAPIKey() bool {
-	// Check common environment variable names
-	envVars := []string{"GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_AI_API_KEY"}
-	for _, env := range envVars {
-		if value := os.Getenv(env); value != "" {
-			return true
-		}
-	}
-	return false
-}
 
 func checkConfigExists() bool {
 	// This is a simple check - in practice we'd use the config manager

@@ -18,7 +18,7 @@ func TestValidateConfig(t *testing.T) {
 			name: "Valid configuration",
 			config: &types.Config{
 				AI: types.AIConfig{
-					Provider:    types.AIProviderAuto,
+					Provider:    types.AIProviderClaude,
 					MaxTokens:   4096,
 					Temperature: 0.7,
 				},
@@ -34,7 +34,7 @@ func TestValidateConfig(t *testing.T) {
 			name: "Invalid max tokens",
 			config: &types.Config{
 				AI: types.AIConfig{
-					Provider:    types.AIProviderAuto,
+					Provider:    types.AIProviderClaude,
 					MaxTokens:   50, // Too low
 					Temperature: 0.7,
 				},
@@ -50,7 +50,7 @@ func TestValidateConfig(t *testing.T) {
 			name: "Invalid temperature",
 			config: &types.Config{
 				AI: types.AIConfig{
-					Provider:    types.AIProviderAuto,
+					Provider:    types.AIProviderClaude,
 					MaxTokens:   4096,
 					Temperature: 3.0, // Too high
 				},
@@ -66,7 +66,7 @@ func TestValidateConfig(t *testing.T) {
 			name: "Valid commit limit zero (default)",
 			config: &types.Config{
 				AI: types.AIConfig{
-					Provider:    types.AIProviderAuto,
+					Provider:    types.AIProviderClaude,
 					MaxTokens:   4096,
 					Temperature: 0.7,
 				},
@@ -82,7 +82,7 @@ func TestValidateConfig(t *testing.T) {
 			name: "Invalid commit limit negative",
 			config: &types.Config{
 				AI: types.AIConfig{
-					Provider:    types.AIProviderAuto,
+					Provider:    types.AIProviderClaude,
 					MaxTokens:   4096,
 					Temperature: 0.7,
 				},
@@ -112,7 +112,7 @@ func TestLoadConfig(t *testing.T) {
 	configPath := filepath.Join(tempDir, "config.yaml")
 
 	configContent := `ai:
-  provider: auto
+  provider: claude
   max_tokens: 4096
   temperature: 0.7
 git:
@@ -134,8 +134,8 @@ git:
 	}
 
 	// Verify loaded values
-	if config.AI.Provider != types.AIProviderAuto {
-		t.Errorf("LoadConfig() AI.Provider = %v, want %v", config.AI.Provider, types.AIProviderAuto)
+	if config.AI.Provider != types.AIProviderClaude {
+		t.Errorf("LoadConfig() AI.Provider = %v, want %v", config.AI.Provider, types.AIProviderClaude)
 	}
 	if config.AI.MaxTokens != 4096 {
 		t.Errorf("LoadConfig() AI.MaxTokens = %v, want %v", config.AI.MaxTokens, 4096)

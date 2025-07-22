@@ -12,12 +12,9 @@ type Config struct {
 type AIConfig struct {
 	Provider    AIProvider   `yaml:"provider"`
 	Model       string       `yaml:"model"`
-	APIKey      string       `yaml:"api_key,omitempty"`
 	MaxTokens   int          `yaml:"max_tokens"`
 	Temperature float32      `yaml:"temperature"`
-	ProjectID   string       `yaml:"project_id,omitempty"`
 	Claude      ClaudeConfig `yaml:"claude,omitempty"`
-	Gemini      GeminiConfig `yaml:"gemini,omitempty"`
 }
 
 // AIProvider represents different AI service providers
@@ -25,8 +22,6 @@ type AIProvider string
 
 const (
 	AIProviderClaude AIProvider = "claude"
-	AIProviderGemini AIProvider = "gemini"
-	AIProviderAuto   AIProvider = "auto" // Auto-detect based on available CLI tools
 )
 
 // ClaudeConfig contains Claude-specific configuration
@@ -37,14 +32,6 @@ type ClaudeConfig struct {
 	UseSession bool   `yaml:"use_session,omitempty"`
 }
 
-// GeminiConfig contains Gemini-specific configuration
-type GeminiConfig struct {
-	APIKey      string  `yaml:"api_key,omitempty"`
-	ProjectID   string  `yaml:"project_id,omitempty"`
-	Model       string  `yaml:"model,omitempty"`
-	MaxTokens   int     `yaml:"max_tokens,omitempty"`
-	Temperature float32 `yaml:"temperature,omitempty"`
-}
 
 // PlatformConfig contains platform-specific settings
 type PlatformConfig struct {

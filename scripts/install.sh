@@ -78,11 +78,12 @@ check_dependencies() {
         print_info "⚠ GitLab CLI (glab) not found - required for GitLab integration"
     fi
     
-    # Check for Claude CLI (optional)
+    # Check for Claude CLI (required)
     if command -v claude &> /dev/null; then
         print_success "✓ Claude CLI found"
     else
-        print_info "⚠ Claude CLI not found - you can use Gemini API instead"
+        print_info "⚠ Claude CLI not found - Please install Claude Code"
+        print_info "   - Visit: https://docs.anthropic.com/en/docs/claude-code"
     fi
 }
 
@@ -200,9 +201,9 @@ main() {
     print_success "Installation complete! 🎉"
     echo
     echo "Next steps:"
-    echo "1. Configure your AI provider:"
-    echo "   - For Claude CLI: Ensure 'claude' command is available"
-    echo "   - For Gemini: Set GEMINI_API_KEY environment variable"
+    echo "1. Ensure Claude Code is set up:"
+    echo "   - Install Claude Code: https://docs.anthropic.com/en/docs/claude-code"
+    echo "   - Authenticate your Claude Code installation"
     echo
     echo "2. Test the installation:"
     echo "   auto-pr status"

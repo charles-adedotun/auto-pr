@@ -89,11 +89,8 @@ func runConfigInit(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("Configuration initialized at: %s\n", configPath)
 	fmt.Println("\nNext steps:")
-	fmt.Println("1. Set your AI provider:")
-	fmt.Println("   auto-pr config set ai.provider claude  # or 'gemini' or 'auto'")
-	fmt.Println("2. Configure API keys if using Gemini:")
-	fmt.Println("   export GEMINI_API_KEY='your-api-key'")
-	fmt.Println("3. Test the configuration:")
+	fmt.Println("1. Ensure Claude Code is installed and authenticated")
+	fmt.Println("2. Test the configuration:")
 	fmt.Println("   auto-pr config validate")
 
 	return nil
@@ -209,7 +206,7 @@ func loadConfig() error {
 func getDefaultConfig() *types.Config {
 	return &types.Config{
 		AI: types.AIConfig{
-			Provider:    types.AIProviderAuto,
+			Provider:    types.AIProviderClaude,
 			MaxTokens:   4096,
 			Temperature: 0.7,
 			Claude: types.ClaudeConfig{
@@ -217,11 +214,6 @@ func getDefaultConfig() *types.Config {
 				Model:      "claude-3-5-sonnet-20241022",
 				MaxTokens:  4096,
 				UseSession: true,
-			},
-			Gemini: types.GeminiConfig{
-				Model:       "gemini-2.5-flash",
-				MaxTokens:   2048,
-				Temperature: 0.7,
 			},
 		},
 		Platforms: types.PlatformConfig{

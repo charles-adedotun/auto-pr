@@ -15,8 +15,9 @@ import (
 )
 
 var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a pull request or merge request",
+	Use:     "create",
+	Aliases: []string{"pr", "mr"},
+	Short:   "Create a pull request or merge request",
 	Long: `Analyze your git changes and create a pull request (GitHub) or merge request (GitLab)
 with AI-generated title, description, and appropriate metadata.`,
 	RunE: runCreate,

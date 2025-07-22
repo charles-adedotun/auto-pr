@@ -3,10 +3,9 @@
 ## 🎉 Successfully Implemented Features
 
 ### ✅ Core Functionality
-1. **Multi-Provider AI Integration**
-   - Claude CLI integration (preferred, leverages existing setup)
-   - Google Gemini API support (fallback option)
-   - Auto-detection of available AI providers
+1. **Claude Code AI Integration**
+   - Claude Code CLI integration (leverages existing setup)
+   - Automatic detection of Claude Code installation
 
 2. **Platform Support**
    - GitHub CLI integration with full PR creation
@@ -40,7 +39,7 @@
 Successfully created PR #2 using Auto PR itself:
 - **URL**: https://github.com/charles-adedotun/auto-pr/pull/2
 - **Title**: Auto-generated PR
-- **Created**: Using Claude CLI for AI-powered description generation
+- **Created**: Using Claude Code for AI-powered description generation
 
 ## 📊 Project Statistics
 

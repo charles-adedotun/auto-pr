@@ -85,10 +85,12 @@ func ValidateConfig(config *types.Config) error {
 func validateAIConfig(ai *types.AIConfig) error {
 	// Check provider
 	switch ai.Provider {
-	case types.AIProviderClaude, types.AIProviderGemini, types.AIProviderAuto:
-		// Valid providers
-	case "":
-		ai.Provider = types.AIProviderAuto // Default to auto
+	case types.AIProviderClaude:
+		// Valid provider
+	case "", "auto":
+		ai.Provider = types.AIProviderClaude // Default to Claude or convert auto to Claude
+	case "gemini":
+		return fmt.Errorf("Gemini provider is no longer supported. Please use Claude Code instead")
 	default:
 		return fmt.Errorf("invalid AI provider: %s", ai.Provider)
 	}
@@ -104,19 +106,9 @@ func validateAIConfig(ai *types.AIConfig) error {
 	}
 
 	// Validate Claude configuration
-	if ai.Provider == types.AIProviderClaude || ai.Provider == types.AIProviderAuto {
+	if ai.Provider == types.AIProviderClaude {
 		if ai.Claude.MaxTokens < 0 {
 			return fmt.Errorf("claude max_tokens must be non-negative")
-		}
-	}
-
-	// Validate Gemini configuration
-	if ai.Provider == types.AIProviderGemini || ai.Provider == types.AIProviderAuto {
-		if ai.Gemini.MaxTokens < 0 {
-			return fmt.Errorf("gemini max_tokens must be non-negative")
-		}
-		if ai.Gemini.Temperature < 0 || ai.Gemini.Temperature > 2 {
-			return fmt.Errorf("gemini temperature must be between 0 and 2")
 		}
 	}
 
@@ -145,7 +137,7 @@ func validateGitConfig(git *types.GitConfig) error {
 func getDefaultConfig() *types.Config {
 	return &types.Config{
 		AI: types.AIConfig{
-			Provider:    types.AIProviderAuto,
+			Provider:    types.AIProviderClaude,
 			MaxTokens:   4096,
 			Temperature: 0.7,
 			Claude: types.ClaudeConfig{
@@ -153,11 +145,6 @@ func getDefaultConfig() *types.Config {
 				Model:      "claude-3-5-sonnet-20241022",
 				MaxTokens:  4096,
 				UseSession: true,
-			},
-			Gemini: types.GeminiConfig{
-				Model:       "gemini-2.5-flash",
-				MaxTokens:   2048,
-				Temperature: 0.7,
 			},
 		},
 		Platforms: types.PlatformConfig{
@@ -215,13 +202,7 @@ func applyEnvOverrides(config *types.Config) {
 		config.AI.Provider = types.AIProvider(provider)
 	}
 
-	// API keys from env
-	if apiKey := viper.GetString("ai.api_key"); apiKey != "" {
-		config.AI.APIKey = apiKey
-	}
-	if apiKey := viper.GetString("ai.gemini.api_key"); apiKey != "" {
-		config.AI.Gemini.APIKey = apiKey
-	}
+	// No API keys needed for Claude CLI
 
 	// Apply numeric overrides
 	if maxTokens := viper.GetInt("ai.max_tokens"); maxTokens > 0 {
@@ -269,16 +250,6 @@ func mergeWithDefaults(config *types.Config) {
 		config.AI.Claude.MaxTokens = defaults.AI.Claude.MaxTokens
 	}
 
-	// Merge Gemini config
-	if config.AI.Gemini.Model == "" {
-		config.AI.Gemini.Model = defaults.AI.Gemini.Model
-	}
-	if config.AI.Gemini.MaxTokens == 0 {
-		config.AI.Gemini.MaxTokens = defaults.AI.Gemini.MaxTokens
-	}
-	if config.AI.Gemini.Temperature == 0 {
-		config.AI.Gemini.Temperature = defaults.AI.Gemini.Temperature
-	}
 
 	// Merge Git config
 	if config.Git.CommitLimit == 0 {
