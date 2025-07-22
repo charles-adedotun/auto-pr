@@ -54,7 +54,7 @@ brew install auto-pr
    auto-pr ship
    # This will: stage → commit → push → create PR
    # Perfect for when you just want to ship your changes fast!
-   # Smart workflow - only does what's actually needed!
+   # Zero configuration - the app handles everything intelligently!
    
    # Other simple aliases:
    auto-pr go          # same as ship
