@@ -1,7 +1,7 @@
 # Auto PR
 
-[![CI](https://github.com/yourorg/auto-pr/actions/workflows/ci.yml/badge.svg)](https://github.com/yourorg/auto-pr/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/yourorg/auto-pr)](https://goreportcard.com/report/github.com/yourorg/auto-pr)
+[![CI](https://github.com/charles-adedotun/auto-pr/actions/workflows/ci.yml/badge.svg)](https://github.com/charles-adedotun/auto-pr/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/charles-adedotun/auto-pr)](https://goreportcard.com/report/github.com/charles-adedotun/auto-pr)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Auto PR is a powerful CLI tool that automatically generates pull requests and merge requests using AI. It analyzes your git changes, commit history, and repository context to create meaningful PR/MR titles, descriptions, and metadata for GitHub and GitLab.
@@ -22,16 +22,16 @@ Auto PR is a powerful CLI tool that automatically generates pull requests and me
 
 ```bash
 # Using curl (recommended)
-curl -sf https://auto-pr.dev/install.sh | sh
+curl -sf https://raw.githubusercontent.com/charles-adedotun/auto-pr/main/scripts/install.sh | sh
 
 # Using Go
-go install github.com/yourorg/auto-pr@latest
+go install github.com/charles-adedotun/auto-pr@latest
 
 # Using Homebrew (coming soon)
 brew install auto-pr
 
 # Download binary from releases
-# Visit: https://github.com/yourorg/auto-pr/releases
+# Visit: https://github.com/charles-adedotun/auto-pr/releases
 ```
 
 ### Prerequisites
@@ -289,7 +289,7 @@ Auto PR analyzes:
 
 ### Building from Source
 ```bash
-git clone https://github.com/yourorg/auto-pr.git
+git clone https://github.com/charles-adedotun/auto-pr.git
 cd auto-pr
 go build -o auto-pr .
 ```
