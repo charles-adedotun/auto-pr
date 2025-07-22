@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"auto-pr/internal/git"
+
 	"github.com/spf13/cobra"
 )
 
@@ -31,8 +33,6 @@ func init() {
 }
 
 func runShip(cmd *cobra.Command, args []string) error {
-	fmt.Println("🚀 Starting the ship workflow!")
-	
 	// Get flags
 	message, _ := cmd.Flags().GetString("message")
 	draft, _ := cmd.Flags().GetBool("draft")
@@ -41,60 +41,106 @@ func runShip(cmd *cobra.Command, args []string) error {
 	noPR, _ := cmd.Flags().GetBool("no-pr")
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
 
-	fmt.Println("📦 Step 1: Staging all changes...")
-	
-	// Stage all changes
-	if err := stageAllChanges(); err != nil {
-		return fmt.Errorf("failed to stage changes: %w", err)
-	}
-	fmt.Println("✅ Changes staged")
+	fmt.Println("🚀 Starting the ship workflow!")
 
-	fmt.Println("💾 Step 2: Creating commit...")
-	
-	// Create a new cobra command context for commit
-	commitCmd := &cobra.Command{}
-	commitCmd.Flags().Bool("all", true, "")
-	commitCmd.Flags().String("message", message, "")
-	commitCmd.Flags().Bool("push", !noPush && !noPR, "") // Only push if not disabled and not creating PR
-	commitCmd.Flags().Bool("dry-run", dryRun, "")
-	
-	if err := runCommit(commitCmd, []string{}); err != nil {
-		return fmt.Errorf("commit failed: %w", err)
+	// Initialize git analyzer to check what needs to be done
+	gitAnalyzer, err := git.NewAnalyzer(".")
+	if err != nil {
+		return fmt.Errorf("failed to initialize git analyzer: %w", err)
 	}
 
-	if dryRun {
-		fmt.Println("🔍 Dry run - would continue with push and PR creation")
+	if !gitAnalyzer.IsGitRepository() {
+		return fmt.Errorf("not in a git repository")
+	}
+
+	// Get current status
+	status, err := gitAnalyzer.GetStatus()
+	if err != nil {
+		return fmt.Errorf("failed to get repository status: %w", err)
+	}
+
+	// Smart workflow - only do what's needed
+	needsCommit := len(status.UnstagedFiles) > 0 || len(status.UntrackedFiles) > 0 || len(status.StagedFiles) > 0
+	needsPush := status.CommitsAhead > 0 // Will be true after we commit
+	
+	if !needsCommit && status.CommitsAhead == 0 {
+		fmt.Println("📭 No changes to ship - working directory is clean and up to date")
 		return nil
 	}
 
-	// Push if not done by commit and not disabled
-	if !noPush && noPR {
-		fmt.Println("🌐 Step 3: Pushing to remote...")
-		if err := pushChanges(); err != nil {
-			return fmt.Errorf("failed to push: %w", err)
+	stepNum := 1
+
+	// Step 1: Commit (only if needed)
+	if needsCommit {
+		fmt.Printf("📦 Step %d: Committing changes...\n", stepNum)
+		
+		if dryRun {
+			fmt.Printf("   Would stage %d unstaged, %d untracked, %d staged files\n", 
+				len(status.UnstagedFiles), len(status.UntrackedFiles), len(status.StagedFiles))
+			if message == "" {
+				fmt.Println("   Would generate AI commit message based on changes")
+			} else {
+				fmt.Printf("   Would commit with message: %s\n", message)
+			}
+		} else {
+			// Create commit command with proper flags
+			commitCmd := &cobra.Command{}
+			commitCmd.Flags().Bool("all", true, "")
+			commitCmd.Flags().String("message", message, "")
+			commitCmd.Flags().Bool("dry-run", false, "") // We handle dry-run here
+			
+			if err := runCommit(commitCmd, []string{}); err != nil {
+				return fmt.Errorf("commit failed: %w", err)
+			}
 		}
-		fmt.Println("✅ Pushed to remote")
+		stepNum++
+		needsPush = true // We just committed, so we need to push
 	}
 
+	// Step 2: Push (only if needed and not disabled)
+	if needsPush && !noPush {
+		fmt.Printf("🌐 Step %d: Pushing to remote...\n", stepNum)
+		
+		if dryRun {
+			fmt.Println("   Would push commits to remote")
+		} else {
+			if err := pushChanges(); err != nil {
+				return fmt.Errorf("failed to push: %w", err)
+			}
+			fmt.Println("✅ Pushed to remote")
+		}
+		stepNum++
+	}
+
+	// Step 3: Create PR (only if not disabled)
 	if !noPR {
-		fmt.Println("🔀 Step 4: Creating pull request...")
+		fmt.Printf("🔀 Step %d: Creating pull request...\n", stepNum)
 		
-		// Create a new cobra command context for create
-		createCmd := &cobra.Command{}
-		createCmd.Flags().Bool("draft", draft, "")
-		createCmd.Flags().StringSlice("reviewer", reviewers, "")
-		createCmd.Flags().Bool("dry-run", dryRun, "")
-		
-		if err := runCreate(createCmd, []string{}); err != nil {
-			return fmt.Errorf("PR creation failed: %w", err)
+		if dryRun {
+			fmt.Println("   Would create PR with AI-generated content")
+		} else {
+			// Create PR command with proper flags
+			createCmd := &cobra.Command{}
+			createCmd.Flags().Bool("draft", draft, "")
+			createCmd.Flags().StringSlice("reviewer", reviewers, "")
+			createCmd.Flags().Bool("dry-run", false, "") // We handle dry-run here
+			
+			if err := runCreate(createCmd, []string{}); err != nil {
+				return fmt.Errorf("PR creation failed: %w", err)
+			}
 		}
 	}
 
-	fmt.Println("🎉 Ship complete! Your changes are live!")
-	
-	if noPR {
-		fmt.Println("   Run 'auto-pr pr' to create a pull request")
+	if dryRun {
+		fmt.Println("🔍 Dry run complete - no changes made")
+	} else {
+		fmt.Println("🎉 Ship complete! Your changes are live!")
+		
+		if noPR {
+			fmt.Println("   💡 Run 'auto-pr pr' to create a pull request")
+		}
 	}
 
 	return nil
 }
+
