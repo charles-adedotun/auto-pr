@@ -182,7 +182,7 @@ func runTemplateDelete(cmd *cobra.Command, args []string) error {
 	if !viper.GetBool("force") {
 		fmt.Printf("Are you sure you want to delete template '%s'? [y/N] ", name)
 		var response string
-		fmt.Scanln(&response)
+		_, _ = fmt.Scanln(&response)
 		if !strings.HasPrefix(strings.ToLower(response), "y") {
 			fmt.Println("Deletion cancelled")
 			return nil

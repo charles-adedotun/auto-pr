@@ -35,7 +35,7 @@ func NewManager() *Manager {
 	customDir := filepath.Join(homeDir, ".auto-pr", "templates")
 
 	// Ensure custom templates directory exists
-	os.MkdirAll(customDir, 0755)
+	_ = os.MkdirAll(customDir, 0755)
 
 	return &Manager{
 		customDir: customDir,
@@ -157,7 +157,7 @@ func (m *Manager) CreateTemplate(name, templateType, fromTemplate string) (*Temp
 	if err != nil {
 		return nil, fmt.Errorf("failed to create template file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// Write initial content
 	var content string

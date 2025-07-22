@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# Auto PR - Pre-commit Hook
+# This script runs quality checks before each commit to catch issues early
+
+set -e
+
+echo "🔍 Running pre-commit quality checks..."
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "❌ Not in a git repository"
+    exit 1
+fi
+
+# Only check staged Go files
+STAGED_GO_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$' | tr '\n' ' ')
+
+if [ -z "$STAGED_GO_FILES" ]; then
+    echo "ℹ️  No Go files to check, skipping pre-commit hooks"
+    exit 0
+fi
+
+echo "📝 Checking staged files: $STAGED_GO_FILES"
+
+# Format check
+echo "🔧 Running go fmt..."
+UNFORMATTED=$(gofmt -l $STAGED_GO_FILES)
+if [ -n "$UNFORMATTED" ]; then
+    echo "❌ The following files are not formatted:"
+    echo "$UNFORMATTED"
+    echo ""
+    echo "💡 Run 'go fmt ./...' or 'make format' to fix formatting"
+    exit 1
+fi
+
+# Vet check
+echo "🔬 Running go vet..."
+if ! go vet ./...; then
+    echo "❌ go vet found issues"
+    exit 1
+fi
+
+# Run tests for changed packages
+echo "🧪 Running tests..."
+CHANGED_PACKAGES=$(echo $STAGED_GO_FILES | xargs -I {} dirname {} | sort -u | xargs -I {} go list ./{}... 2>/dev/null || echo "")
+if [ -n "$CHANGED_PACKAGES" ]; then
+    if ! go test $CHANGED_PACKAGES; then
+        echo "❌ Tests failed"
+        exit 1
+    fi
+else
+    # Fallback: run all tests if we can't determine packages
+    if ! go test ./...; then
+        echo "❌ Tests failed"
+        exit 1
+    fi
+fi
+
+# Lint check (if golangci-lint is available)
+if command -v golangci-lint >/dev/null 2>&1; then
+    echo "🔍 Running golangci-lint..."
+    if ! golangci-lint run --new-from-rev=HEAD~1; then
+        echo "❌ Linting failed"
+        echo "💡 Run 'golangci-lint run --fix' to auto-fix some issues"
+        exit 1
+    fi
+else
+    echo "⚠️  golangci-lint not found, skipping lint check"
+    echo "💡 Install with: brew install golangci-lint"
+fi
+
+echo "✅ All pre-commit checks passed!"
+exit 0
