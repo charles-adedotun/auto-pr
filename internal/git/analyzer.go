@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	
+
 	"auto-pr/pkg/types"
 )
 
@@ -23,7 +23,7 @@ func NewAnalyzer(repoPath string) (*Analyzer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get absolute path: %w", err)
 	}
-	
+
 	return &Analyzer{
 		repoPath: absPath,
 	}, nil
@@ -35,12 +35,12 @@ func (a *Analyzer) IsGitRepository() bool {
 	if stat, err := os.Stat(gitDir); err == nil {
 		return stat.IsDir()
 	}
-	
+
 	// Check if .git is a file (in case of git worktrees)
 	if _, err := os.Stat(gitDir); err == nil {
 		return true
 	}
-	
+
 	return false
 }
 
@@ -49,46 +49,46 @@ func (a *Analyzer) GetStatus() (*types.GitStatus, error) {
 	if !a.IsGitRepository() {
 		return &types.GitStatus{IsGitRepo: false}, nil
 	}
-	
+
 	status := &types.GitStatus{IsGitRepo: true}
-	
+
 	// Get current branch
 	currentBranch, err := a.getCurrentBranch()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current branch: %w", err)
 	}
 	status.CurrentBranch = currentBranch
-	
+
 	// Get remote URL
 	remoteURL, err := a.getRemoteURL()
 	if err == nil {
 		status.RemoteURL = remoteURL
 	}
-	
+
 	// Get base branch (usually main or master)
 	baseBranch, err := a.getBaseBranch()
 	if err == nil {
 		status.BaseBranch = baseBranch
 	}
-	
+
 	// Get file statuses
 	staged, unstaged, untracked, err := a.getFileStatuses()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file statuses: %w", err)
 	}
-	
+
 	status.StagedFiles = staged
 	status.UnstagedFiles = unstaged
 	status.UntrackedFiles = untracked
 	status.HasChanges = len(staged) > 0 || len(unstaged) > 0 || len(untracked) > 0
-	
+
 	// Get commit counts
 	ahead, behind, err := a.getCommitCounts(baseBranch)
 	if err == nil {
 		status.CommitsAhead = ahead
 		status.CommitsBehind = behind
 	}
-	
+
 	return status, nil
 }
 
@@ -105,7 +105,7 @@ func (a *Analyzer) getCurrentBranch() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get current branch: %w", err)
 	}
-	
+
 	return strings.TrimSpace(string(output)), nil
 }
 
@@ -116,7 +116,7 @@ func (a *Analyzer) getRemoteURL() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get remote URL: %w", err)
 	}
-	
+
 	return strings.TrimSpace(string(output)), nil
 }
 
@@ -132,7 +132,7 @@ func (a *Analyzer) getBaseBranch() (string, error) {
 			return parts[len(parts)-1], nil
 		}
 	}
-	
+
 	// Fallback: check common branch names
 	commonBranches := []string{"main", "master", "develop"}
 	for _, branch := range commonBranches {
@@ -141,7 +141,7 @@ func (a *Analyzer) getBaseBranch() (string, error) {
 			return branch, nil
 		}
 	}
-	
+
 	return "main", nil // Default fallback
 }
 
@@ -152,18 +152,18 @@ func (a *Analyzer) getFileStatuses() (staged, unstaged, untracked []string, err 
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to get git status: %w", err)
 	}
-	
+
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))
 	for scanner.Scan() {
 		line := scanner.Text()
 		if len(line) < 3 {
 			continue
 		}
-		
+
 		indexStatus := line[0]
 		workTreeStatus := line[1]
 		filename := line[3:]
-		
+
 		if indexStatus != ' ' && indexStatus != '?' {
 			staged = append(staged, filename)
 		}
@@ -174,7 +174,7 @@ func (a *Analyzer) getFileStatuses() (staged, unstaged, untracked []string, err 
 			untracked = append(untracked, filename)
 		}
 	}
-	
+
 	return staged, unstaged, untracked, scanner.Err()
 }
 
@@ -188,7 +188,7 @@ func (a *Analyzer) getCommitCounts(baseBranch string) (ahead, behind int, err er
 			ahead = count
 		}
 	}
-	
+
 	// Get commits behind
 	cmd = exec.Command("git", "-C", a.repoPath, "rev-list", "--count", fmt.Sprintf("HEAD..origin/%s", baseBranch))
 	output, err = cmd.Output()
@@ -197,6 +197,6 @@ func (a *Analyzer) getCommitCounts(baseBranch string) (ahead, behind int, err er
 			behind = count
 		}
 	}
-	
+
 	return ahead, behind, nil
 }

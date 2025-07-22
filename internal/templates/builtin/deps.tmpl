@@ -1,0 +1,85 @@
+{{.Title}}
+
+## 📦 Dependency Update
+
+## 📝 Summary
+{{.Summary}}
+
+## 🎯 Purpose
+{{.Description}}
+
+## 📊 Dependencies Changed
+{{range .Changes}}- {{.}}
+{{else}}### Updated
+| Package | Old Version | New Version | Change Type |
+|---------|------------|-------------|-------------|
+| example | v1.0.0 | v1.1.0 | Minor |
+
+### Added
+| Package | Version | Purpose |
+|---------|---------|---------|
+| new-pkg | v2.0.0 | Feature X |
+
+### Removed
+| Package | Reason |
+|---------|--------|
+| old-pkg | No longer needed |{{end}}
+
+## 🔍 Compatibility
+- [ ] Backward compatible
+- [ ] Breaking changes documented
+- [ ] Migration guide provided (if needed)
+- [ ] API changes reviewed
+
+## 🧪 Testing
+- [ ] All tests pass with new dependencies
+- [ ] No security vulnerabilities introduced
+- [ ] Performance impact assessed
+- [ ] Integration tests pass
+- [ ] Smoke tests in staging
+
+## 🔒 Security Review
+- [ ] Dependencies scanned for vulnerabilities
+- [ ] License compatibility verified
+- [ ] No deprecated packages
+- [ ] Security advisories checked
+
+## 📋 Dependency Audit
+```bash
+# Security audit
+npm audit  # or equivalent
+
+# License check
+license-checker  # or equivalent
+
+# Outdated check
+npm outdated  # or equivalent
+```
+
+## ⚡ Performance Impact
+- Bundle size change: [+/- X KB]
+- Build time impact: [+/- X seconds]
+- Runtime impact: [Negligible/Minor/Major]
+
+## 📝 Changelog Review
+### Notable changes in updated dependencies:
+- Package A: [Key changes]
+- Package B: [Key changes]
+
+## ✅ Checklist
+- [ ] Changelog reviewed for all updates
+- [ ] No alpha/beta versions in production
+- [ ] Lock file updated
+- [ ] Documentation updated
+- [ ] CI/CD configuration updated (if needed)
+
+## 🚨 Risks
+- **Risk Level**: Low/Medium/High
+- **Mitigation**: [How risks are mitigated]
+
+## 🔄 Rollback Plan
+```bash
+# If rollback needed
+git revert {{.Branch}}
+npm install  # or equivalent
+```

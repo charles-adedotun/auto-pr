@@ -1,0 +1,76 @@
+{{.Title}}
+
+## 🧪 Test Improvements
+
+## 📝 Summary
+{{.Summary}}
+
+## 🎯 Testing Goals
+{{.Description}}
+
+## 📂 Test Files
+{{range .FileChanges}}- `{{.Path}}`{{if eq .Status "added"}} (NEW){{end}}
+{{end}}
+
+## 📊 Coverage Metrics
+- **Before**: [X]% coverage
+- **After**: [Y]% coverage
+- **New tests added**: [Number]
+- **Test cases covered**: [Number]
+
+## ✅ Test Categories
+{{range .TestPlan}}- [ ] {{.}}
+{{else}}- [ ] Unit tests
+- [ ] Integration tests
+- [ ] End-to-end tests
+- [ ] Performance tests
+- [ ] Security tests{{end}}
+
+## 🔍 Test Scenarios
+### Positive Test Cases
+- [ ] Happy path scenarios
+- [ ] Valid input handling
+- [ ] Expected behavior verification
+
+### Negative Test Cases
+- [ ] Error handling
+- [ ] Invalid input validation
+- [ ] Edge cases
+- [ ] Boundary conditions
+
+### Performance Tests
+- [ ] Load testing
+- [ ] Stress testing
+- [ ] Memory usage
+- [ ] Response times
+
+## 🏃 Test Execution
+```bash
+# Run all tests
+go test ./...
+
+# Run with coverage
+go test -cover ./...
+
+# Run specific test suite
+go test -v ./path/to/tests
+```
+
+## 📋 Checklist
+- [ ] All new code has tests
+- [ ] Tests are readable and maintainable
+- [ ] Tests follow naming conventions
+- [ ] No flaky tests introduced
+- [ ] CI/CD pipeline updated (if needed)
+- [ ] Test documentation updated
+
+## 🚀 Benefits
+- Increased confidence in code changes
+- Faster bug detection
+- Better code documentation through tests
+- Easier refactoring
+
+## 📝 Notes
+- Test data location: [if applicable]
+- Special setup required: [if any]
+- Known limitations: [if any]

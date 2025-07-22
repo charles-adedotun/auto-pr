@@ -1,0 +1,45 @@
+{{.Title}}
+
+## 🐛 Bug Description
+{{.Description}}
+
+## 🔍 Root Cause Analysis
+<!-- Describe what caused the bug -->
+
+## 💡 Solution
+{{.Summary}}
+
+## 🔧 Changes Made
+{{range .FileChanges}}- `{{.Path}}` - {{.Status}}
+{{end}}
+
+## 📊 Change Statistics
+- **Files modified**: {{.FilesChanged}}
+- **Lines added**: {{.Additions}}
+- **Lines removed**: {{.Deletions}}
+
+## 🧪 Testing
+- [ ] Bug reproduced before fix
+- [ ] Bug resolved after fix
+- [ ] Unit tests added to prevent regression
+- [ ] Existing tests still pass
+{{range .TestPlan}}- [ ] {{.}}
+{{end}}
+
+## 🔍 How to Test
+1. Steps to reproduce the bug (before fix)
+2. Expected behavior (after fix)
+3. Any edge cases to verify
+
+## 📋 Checklist
+- [ ] Fix is minimal and focused
+- [ ] No unrelated changes included
+- [ ] Error handling improved (if applicable)
+- [ ] Logging added for debugging (if needed)
+
+## 🔗 Related Issues
+- Fixes #[issue-number]
+
+## 🚨 Risk Assessment
+- **Risk Level**: Low/Medium/High
+- **Affected Areas**: [List affected components]

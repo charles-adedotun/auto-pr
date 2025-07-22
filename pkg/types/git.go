@@ -4,16 +4,16 @@ import "time"
 
 // GitStatus represents the current status of a git repository
 type GitStatus struct {
-	IsGitRepo     bool
-	CurrentBranch string
-	BaseBranch    string
-	RemoteURL     string
-	HasChanges    bool
-	StagedFiles   []string
-	UnstagedFiles []string
+	IsGitRepo      bool
+	CurrentBranch  string
+	BaseBranch     string
+	RemoteURL      string
+	HasChanges     bool
+	StagedFiles    []string
+	UnstagedFiles  []string
 	UntrackedFiles []string
-	CommitsAhead  int
-	CommitsBehind int
+	CommitsAhead   int
+	CommitsBehind  int
 }
 
 // CommitInfo represents information about a single commit

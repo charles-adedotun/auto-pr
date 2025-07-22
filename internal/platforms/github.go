@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-	
+
 	"auto-pr/pkg/types"
 )
 
@@ -24,20 +24,20 @@ func NewGitHubClient(repoURL string) (*GitHubClient, error) {
 	if err != nil {
 		return nil, fmt.Errorf("GitHub CLI (gh) not found in PATH: %w", err)
 	}
-	
+
 	// Extract repo info
 	owner, repo, err := ExtractRepoInfo(repoURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract repo info: %w", err)
 	}
-	
+
 	client := &GitHubClient{
 		cliPath:   cliPath,
 		repoOwner: owner,
 		repoName:  repo,
 		repoURL:   repoURL,
 	}
-	
+
 	return client, nil
 }
 
@@ -57,21 +57,21 @@ func (g *GitHubClient) ValidateRepository() error {
 	if !g.IsAuthenticated() {
 		return fmt.Errorf("not authenticated with GitHub. Run: gh auth login")
 	}
-	
+
 	// Check repository access
 	cmd := exec.Command(g.cliPath, "repo", "view", fmt.Sprintf("%s/%s", g.repoOwner, g.repoName), "--json", "name")
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("cannot access repository %s/%s: %w", g.repoOwner, g.repoName, err)
 	}
-	
+
 	var repoInfo struct {
 		Name string `json:"name"`
 	}
 	if err := json.Unmarshal(output, &repoInfo); err != nil {
 		return fmt.Errorf("failed to parse repository info: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -80,7 +80,7 @@ func (g *GitHubClient) CreatePullRequest(req *types.PullRequestRequest) (*types.
 	if err := g.ValidateRepository(); err != nil {
 		return nil, err
 	}
-	
+
 	args := []string{
 		"pr", "create",
 		"--title", req.Title,
@@ -88,57 +88,57 @@ func (g *GitHubClient) CreatePullRequest(req *types.PullRequestRequest) (*types.
 		"--head", req.HeadBranch,
 		"--base", req.BaseBranch,
 	}
-	
+
 	// Add draft flag
 	if req.Draft {
 		args = append(args, "--draft")
 	}
-	
+
 	// Add reviewers
 	if len(req.Reviewers) > 0 {
 		args = append(args, "--reviewer", strings.Join(req.Reviewers, ","))
 	}
-	
+
 	// Add team reviewers
 	if len(req.TeamReviewers) > 0 {
 		args = append(args, "--reviewer", strings.Join(req.TeamReviewers, ","))
 	}
-	
+
 	// Add labels
 	if len(req.Labels) > 0 {
 		args = append(args, "--label", strings.Join(req.Labels, ","))
 	}
-	
+
 	// Add milestone
 	if req.Milestone != "" {
 		args = append(args, "--milestone", req.Milestone)
 	}
-	
+
 	// Execute command
 	cmd := exec.Command(g.cliPath, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create pull request: %w\nOutput: %s\nArgs: %v", err, string(output), args)
 	}
-	
+
 	// Parse the PR URL from output
 	prURL := strings.TrimSpace(string(output))
-	
+
 	// Get detailed PR information
 	return g.getPRDetails(prURL)
 }
 
 // GetExistingPR finds existing PR for the given branch
 func (g *GitHubClient) GetExistingPR(branch string) (*types.PullRequest, error) {
-	cmd := exec.Command(g.cliPath, "pr", "list", 
+	cmd := exec.Command(g.cliPath, "pr", "list",
 		"--head", branch,
 		"--json", "number,title,body,state,url,headRefName,baseRefName,author,labels,milestone,createdAt,updatedAt")
-	
+
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("failed to list pull requests: %w", err)
 	}
-	
+
 	var prs []struct {
 		Number      int    `json:"number"`
 		Title       string `json:"title"`
@@ -159,23 +159,23 @@ func (g *GitHubClient) GetExistingPR(branch string) (*types.PullRequest, error) 
 		CreatedAt string `json:"createdAt"`
 		UpdatedAt string `json:"updatedAt"`
 	}
-	
+
 	if err := json.Unmarshal(output, &prs); err != nil {
 		return nil, fmt.Errorf("failed to parse PR list: %w", err)
 	}
-	
+
 	if len(prs) == 0 {
 		return nil, nil // No existing PR
 	}
-	
+
 	pr := prs[0] // Get the first (most recent) PR
-	
+
 	// Extract labels
 	labels := make([]string, len(pr.Labels))
 	for i, label := range pr.Labels {
 		labels[i] = label.Name
 	}
-	
+
 	return &types.PullRequest{
 		ID:         pr.Number,
 		Number:     pr.Number,
@@ -206,15 +206,15 @@ func (g *GitHubClient) getPRDetails(prURL string) (*types.PullRequest, error) {
 		return nil, fmt.Errorf("invalid PR URL: %s", prURL)
 	}
 	prNumber := parts[len(parts)-1]
-	
+
 	cmd := exec.Command(g.cliPath, "pr", "view", prNumber,
 		"--json", "number,title,body,state,url,headRefName,baseRefName,author,labels,milestone,createdAt,updatedAt,isDraft")
-	
+
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get PR details: %w", err)
 	}
-	
+
 	var pr struct {
 		Number      int    `json:"number"`
 		Title       string `json:"title"`
@@ -236,22 +236,22 @@ func (g *GitHubClient) getPRDetails(prURL string) (*types.PullRequest, error) {
 		UpdatedAt string `json:"updatedAt"`
 		IsDraft   bool   `json:"isDraft"`
 	}
-	
+
 	if err := json.Unmarshal(output, &pr); err != nil {
 		return nil, fmt.Errorf("failed to parse PR details: %w", err)
 	}
-	
+
 	// Extract labels
 	labels := make([]string, len(pr.Labels))
 	for i, label := range pr.Labels {
 		labels[i] = label.Name
 	}
-	
+
 	state := mapGitHubState(pr.State)
 	if pr.IsDraft {
 		state = types.PRStateDraft
 	}
-	
+
 	return &types.PullRequest{
 		ID:         pr.Number,
 		Number:     pr.Number,

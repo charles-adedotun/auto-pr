@@ -15,6 +15,7 @@ Auto PR is a powerful CLI tool that automatically generates pull requests and me
 - ⚡ **Fast & Efficient**: Single binary, no dependencies
 - 🛠️ **Configurable**: Extensive configuration options via YAML/JSON/ENV
 - 🔐 **Secure**: Uses existing GitHub CLI and GitLab CLI authentication
+- 🔌 **MCP Server**: Can be used as an MCP (Model Context Protocol) server for AI assistants
 
 ## Quick Start
 
@@ -108,16 +109,49 @@ git:
 
 ### Environment Variables
 
+Auto PR supports extensive configuration through environment variables. All config file options can be overridden using environment variables with the `AUTO_PR_` prefix:
+
 ```bash
-# For Gemini API (if using Gemini)
-export GEMINI_API_KEY="your-api-key-here"
-export GOOGLE_CLOUD_PROJECT_ID="your-project-id"
+# AI Configuration
+export AUTO_PR_AI_PROVIDER="claude"              # AI provider: "claude", "gemini", or "auto"
+export AUTO_PR_AI_MODEL="claude-3-5-sonnet"      # Override default model
+export AUTO_PR_AI_MAX_TOKENS="4096"              # Maximum tokens for AI response
+export AUTO_PR_AI_TEMPERATURE="0.7"              # AI temperature (0-2)
 
-# For Claude CLI (automatically uses existing authentication)
-# No additional environment variables needed if claude CLI is already set up
+# Claude CLI Configuration
+export AUTO_PR_CLAUDE_CLI_PATH="claude"          # Path to Claude CLI
+export AUTO_PR_CLAUDE_MODEL="claude-3-5-sonnet-20241022"
+export AUTO_PR_CLAUDE_MAX_TOKENS="4096"
+export AUTO_PR_CLAUDE_USE_SESSION="true"         # Use Claude session mode
 
-# Optional: custom config file location
-export AUTO_PR_CONFIG="path/to/config.yaml"
+# Gemini API Configuration
+export AUTO_PR_GEMINI_API_KEY="your-api-key"     # Gemini API key
+export GEMINI_API_KEY="your-api-key"             # Alternative: standard Gemini env var
+export AUTO_PR_GEMINI_PROJECT_ID="project-id"    # Google Cloud project ID
+export AUTO_PR_GEMINI_MODEL="gemini-2.5-flash"
+export AUTO_PR_GEMINI_MAX_TOKENS="2048"
+export AUTO_PR_GEMINI_TEMPERATURE="0.7"
+
+# GitHub Configuration
+export AUTO_PR_GITHUB_DRAFT="false"              # Create PRs as draft
+export AUTO_PR_GITHUB_AUTO_MERGE="false"         # Enable auto-merge
+export AUTO_PR_GITHUB_DELETE_BRANCH="true"       # Delete branch after merge
+
+# GitLab Configuration
+export AUTO_PR_GITLAB_AUTO_MERGE="true"          # Merge when pipeline succeeds
+export AUTO_PR_GITLAB_REMOVE_SOURCE_BRANCH="true"
+export AUTO_PR_GITLAB_DEFAULT_ASSIGNEE="username"
+
+# Git Configuration
+export AUTO_PR_GIT_COMMIT_LIMIT="10"             # Number of commits to analyze
+export AUTO_PR_GIT_DIFF_CONTEXT="3"              # Lines of context in diffs
+export AUTO_PR_GIT_MAX_DIFF_SIZE="10000"         # Maximum diff size
+
+# Template Configuration
+export AUTO_PR_TEMPLATES_DIR="~/.auto-pr/templates"  # Custom templates directory
+
+# General Configuration
+export AUTO_PR_CONFIG="/path/to/config.yaml"     # Custom config file location
 ```
 
 ### AI Provider Setup
@@ -284,6 +318,45 @@ Auto PR analyzes:
 - Repository structure and language
 - Previous PR/MR patterns
 - CODEOWNERS and team structure
+
+## MCP Server Mode
+
+Auto PR can run as an MCP (Model Context Protocol) server, allowing AI assistants like Claude Code to use it as a tool for automated PR/MR creation.
+
+### MCP Server Setup
+
+1. **Run as MCP server:**
+   ```bash
+   auto-pr mcp
+   ```
+
+2. **Configure in Claude Code:**
+   Add to your Claude Code MCP settings:
+   ```json
+   {
+     "auto-pr": {
+       "command": "auto-pr",
+       "args": ["mcp"]
+     }
+   }
+   ```
+
+3. **Available MCP Tools:**
+   - `repo_status`: Get repository status and branch information
+   - `analyze_changes`: Analyze git changes and generate PR content
+   - `create_pr`: Create a pull request with AI-generated content
+
+### Using with Claude Code
+
+Once configured, Claude Code can use Auto PR to:
+- Analyze repository changes
+- Generate PR descriptions automatically
+- Create pull requests directly from the chat interface
+
+Example prompts:
+- "Check the repository status"
+- "Analyze my changes and suggest a PR description"
+- "Create a pull request for my current changes"
 
 ## Development
 
