@@ -205,7 +205,7 @@ func (g *GeminiClient) buildPrompt(ctx *AIContext, basePrompt string) string {
 	prompt.WriteString("\n\n")
 	
 	// Add output format requirements
-	prompt.WriteString("Please respond with a JSON object containing:\n")
+	prompt.WriteString("IMPORTANT: Respond with ONLY a valid JSON object, no other text. The JSON must contain:\n")
 	prompt.WriteString(`{
   "title": "Brief, descriptive PR title",
   "body": "Detailed PR description in markdown",
@@ -214,6 +214,7 @@ func (g *GeminiClient) buildPrompt(ctx *AIContext, basePrompt string) string {
   "priority": "low|medium|high",
   "confidence": 0.85
 }`)
+	prompt.WriteString("\n\nDo not include any text before or after the JSON object.")
 	
 	return prompt.String()
 }

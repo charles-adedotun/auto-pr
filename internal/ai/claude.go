@@ -123,7 +123,11 @@ func (c *ClaudeClient) buildPrompt(ctx *AIContext, basePrompt string) string {
 	if len(ctx.CommitHistory) > 0 {
 		prompt.WriteString("## Recent Commits:\n")
 		for _, commit := range ctx.CommitHistory {
-			prompt.WriteString(fmt.Sprintf("- %s: %s\n", commit.Hash[:8], commit.Message))
+			hashDisplay := commit.Hash
+			if len(hashDisplay) > 8 {
+				hashDisplay = hashDisplay[:8]
+			}
+			prompt.WriteString(fmt.Sprintf("- %s: %s\n", hashDisplay, commit.Message))
 		}
 		prompt.WriteString("\n")
 	}
@@ -158,7 +162,7 @@ func (c *ClaudeClient) buildPrompt(ctx *AIContext, basePrompt string) string {
 	prompt.WriteString("\n\n")
 	
 	// Add output format requirements
-	prompt.WriteString("Please respond with a JSON object containing:\n")
+	prompt.WriteString("IMPORTANT: Respond with ONLY a valid JSON object, no other text. The JSON must contain:\n")
 	prompt.WriteString(`{
   "title": "Brief, descriptive PR title",
   "body": "Detailed PR description in markdown",
@@ -167,31 +171,17 @@ func (c *ClaudeClient) buildPrompt(ctx *AIContext, basePrompt string) string {
   "priority": "low|medium|high",
   "confidence": 0.85
 }`)
+	prompt.WriteString("\n\nDo not include any text before or after the JSON object.")
 	
 	return prompt.String()
 }
 
 // parseResponse parses the Claude CLI response
 func (c *ClaudeClient) parseResponse(output string) (*AIResponse, error) {
-	// Try to find JSON in the output
-	start := strings.Index(output, "{")
-	end := strings.LastIndex(output, "}")
+	// Clean the output
+	output = strings.TrimSpace(output)
 	
-	if start == -1 || end == -1 || start >= end {
-		// Fallback: create a basic response from the raw output
-		return &AIResponse{
-			Title:      "Auto-generated PR",
-			Body:       output,
-			Labels:     []string{"auto-generated"},
-			Reviewers:  []string{},
-			Priority:   "medium",
-			Confidence: 0.5,
-			TokensUsed: len(output) / 4, // Rough estimation
-		}, nil
-	}
-	
-	jsonStr := output[start : end+1]
-	
+	// First, try to parse as direct JSON
 	var parsed struct {
 		Title      string   `json:"title"`
 		Body       string   `json:"body"`
@@ -201,26 +191,65 @@ func (c *ClaudeClient) parseResponse(output string) (*AIResponse, error) {
 		Confidence float32  `json:"confidence"`
 	}
 	
-	if err := json.Unmarshal([]byte(jsonStr), &parsed); err != nil {
-		// Fallback to raw response if JSON parsing fails
+	if err := json.Unmarshal([]byte(output), &parsed); err == nil {
+		// Direct JSON parsing succeeded
 		return &AIResponse{
-			Title:      "Auto-generated PR",
-			Body:       output,
-			Labels:     []string{"auto-generated"},
-			Reviewers:  []string{},
-			Priority:   "medium",
-			Confidence: 0.5,
+			Title:      parsed.Title,
+			Body:       parsed.Body,
+			Labels:     parsed.Labels,
+			Reviewers:  parsed.Reviewers,
+			Priority:   parsed.Priority,
+			Confidence: parsed.Confidence,
 			TokensUsed: len(output) / 4,
 		}, nil
 	}
 	
+	// If direct parsing fails, try to extract JSON from the output
+	start := strings.Index(output, "{")
+	end := strings.LastIndex(output, "}")
+	
+	if start != -1 && end != -1 && start < end {
+		jsonStr := output[start : end+1]
+		
+		if err := json.Unmarshal([]byte(jsonStr), &parsed); err == nil {
+			return &AIResponse{
+				Title:      parsed.Title,
+				Body:       parsed.Body,
+				Labels:     parsed.Labels,
+				Reviewers:  parsed.Reviewers,
+				Priority:   parsed.Priority,
+				Confidence: parsed.Confidence,
+				TokensUsed: len(output) / 4,
+			}, nil
+		}
+	}
+	
+	// Last resort: try to extract title and body from the output
+	lines := strings.Split(output, "\n")
+	title := "Auto-generated PR"
+	body := output
+	
+	// Look for patterns like "title:" or "# Title"
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(strings.ToLower(line))
+		if strings.HasPrefix(trimmed, "title:") {
+			title = strings.TrimSpace(line[6:]) // Skip "title:"
+		} else if strings.HasPrefix(trimmed, "# ") {
+			title = strings.TrimSpace(line[2:]) // Skip "# "
+			if i+1 < len(lines) {
+				body = strings.Join(lines[i+1:], "\n")
+			}
+			break
+		}
+	}
+	
 	return &AIResponse{
-		Title:      parsed.Title,
-		Body:       parsed.Body,
-		Labels:     parsed.Labels,
-		Reviewers:  parsed.Reviewers,
-		Priority:   parsed.Priority,
-		Confidence: parsed.Confidence,
-		TokensUsed: len(output) / 4, // Rough estimation
+		Title:      title,
+		Body:       body,
+		Labels:     []string{},
+		Reviewers:  []string{},
+		Priority:   "medium",
+		Confidence: 0.5,
+		TokensUsed: len(output) / 4,
 	}, nil
 }
