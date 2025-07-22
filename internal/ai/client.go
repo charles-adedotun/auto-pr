@@ -3,7 +3,7 @@ package ai
 import (
 	"fmt"
 	"os/exec"
-	
+
 	"auto-pr/pkg/types"
 )
 
@@ -31,12 +31,12 @@ func NewAutoClient(config types.AIConfig) (AIClient, error) {
 				claudeConfig.CLIPath = path
 			}
 		}
-		
+
 		if client, err := NewClaudeClient(claudeConfig); err == nil && client.IsAvailable() {
 			return client, nil
 		}
 	}
-	
+
 	// Fall back to Gemini if API key is available
 	if config.Gemini.APIKey != "" || config.APIKey != "" {
 		geminiConfig := config.Gemini
@@ -55,12 +55,12 @@ func NewAutoClient(config types.AIConfig) (AIClient, error) {
 		if geminiConfig.Temperature == 0 && config.Temperature > 0 {
 			geminiConfig.Temperature = config.Temperature
 		}
-		
+
 		if client, err := NewGeminiClient(geminiConfig); err == nil && client.IsAvailable() {
 			return client, nil
 		}
 	}
-	
+
 	return nil, fmt.Errorf("no available AI providers found. Please configure Claude CLI or Gemini API")
 }
 
@@ -73,14 +73,14 @@ func isClaudeAvailable() bool {
 // GetAvailableProviders returns a list of available AI providers
 func GetAvailableProviders() []types.AIProvider {
 	var providers []types.AIProvider
-	
+
 	if isClaudeAvailable() {
 		providers = append(providers, types.AIProviderClaude)
 	}
-	
+
 	// Gemini is always potentially available if API key is provided
 	providers = append(providers, types.AIProviderGemini)
-	
+
 	return providers
 }
 

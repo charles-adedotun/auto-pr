@@ -185,4 +185,3 @@ func checkConfigExists() bool {
 	_, err := os.Stat(configPath)
 	return err == nil
 }
-

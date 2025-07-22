@@ -3,7 +3,7 @@ package templates
 import (
 	"fmt"
 	"strings"
-	
+
 	"auto-pr/internal/ai"
 )
 
@@ -16,40 +16,40 @@ func BuildTemplateContext(aiCtx *ai.AIContext, aiResp *ai.AIResponse) *TemplateC
 		Description: aiResp.Body,
 		Custom:      make(map[string]interface{}),
 	}
-	
+
 	// Add branch info
 	if aiCtx.BranchInfo.Name != "" {
 		ctx.Branch = aiCtx.BranchInfo.Name
 		ctx.BaseBranch = aiCtx.BranchInfo.BaseBranch
 	}
-	
+
 	// Add change statistics
 	if len(aiCtx.CommitHistory) > 0 {
 		ctx.CommitCount = len(aiCtx.CommitHistory)
 		ctx.Commits = aiCtx.CommitHistory
 	}
-	
+
 	if len(aiCtx.FileChanges) > 0 {
 		ctx.FilesChanged = len(aiCtx.FileChanges)
 		ctx.FileChanges = aiCtx.FileChanges
-		
+
 		// Calculate totals
 		for _, fc := range aiCtx.FileChanges {
 			ctx.Additions += fc.Additions
 			ctx.Deletions += fc.Deletions
 		}
 	}
-	
+
 	// Extract changes from AI response
 	ctx.Changes = extractBulletPoints(aiResp.Body, "changes", "modifications")
 	ctx.TestPlan = extractBulletPoints(aiResp.Body, "test", "testing")
-	
+
 	// Add custom fields
 	ctx.Custom["labels"] = aiResp.Labels
 	ctx.Custom["reviewers"] = aiResp.Reviewers
 	ctx.Custom["priority"] = aiResp.Priority
 	ctx.Custom["confidence"] = aiResp.Confidence
-	
+
 	return ctx
 }
 
@@ -57,13 +57,13 @@ func BuildTemplateContext(aiCtx *ai.AIContext, aiResp *ai.AIResponse) *TemplateC
 func EnhanceWithTemplate(manager *Manager, templateName string, aiCtx *ai.AIContext, aiResp *ai.AIResponse) (*ai.AIResponse, error) {
 	// Build template context
 	ctx := BuildTemplateContext(aiCtx, aiResp)
-	
+
 	// Render template
 	body, err := manager.RenderTemplate(templateName, ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to render template: %w", err)
 	}
-	
+
 	// Create enhanced response
 	enhanced := &ai.AIResponse{
 		Title:      aiResp.Title,
@@ -75,7 +75,7 @@ func EnhanceWithTemplate(manager *Manager, templateName string, aiCtx *ai.AICont
 		Provider:   aiResp.Provider,
 		TokensUsed: aiResp.TokensUsed,
 	}
-	
+
 	return enhanced, nil
 }
 
@@ -106,12 +106,12 @@ func detectChangeType(ctx *ai.AIContext) string {
 			return "deps"
 		}
 	}
-	
+
 	// Check file changes
 	hasTests := false
 	hasDocs := false
 	hasDeps := false
-	
+
 	for _, fc := range ctx.FileChanges {
 		path := strings.ToLower(fc.Path)
 		if strings.Contains(path, "test") || strings.HasSuffix(path, "_test.go") {
@@ -124,7 +124,7 @@ func detectChangeType(ctx *ai.AIContext) string {
 			hasDeps = true
 		}
 	}
-	
+
 	if hasTests && !hasDocs && !hasDeps {
 		return "test"
 	}
@@ -134,7 +134,7 @@ func detectChangeType(ctx *ai.AIContext) string {
 	if hasDeps {
 		return "deps"
 	}
-	
+
 	return "feature" // default
 }
 
@@ -144,27 +144,27 @@ func extractSummary(body string) string {
 	lines := strings.Split(body, "\n")
 	inSummary := false
 	summaryLines := []string{}
-	
+
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(strings.ToLower(line))
-		
+
 		// Check if we're in summary section
 		if strings.Contains(trimmed, "summary") && strings.HasPrefix(line, "#") {
 			inSummary = true
 			continue
 		}
-		
+
 		// Check if we're leaving summary section
 		if inSummary && strings.HasPrefix(line, "#") {
 			break
 		}
-		
+
 		// Collect summary lines
 		if inSummary && strings.TrimSpace(line) != "" {
 			summaryLines = append(summaryLines, strings.TrimSpace(line))
 		}
 	}
-	
+
 	if len(summaryLines) > 0 {
 		summary := strings.Join(summaryLines, " ")
 		// Remove bullet points
@@ -174,7 +174,7 @@ func extractSummary(body string) string {
 		}
 		return summary
 	}
-	
+
 	// Fallback: use first non-empty, non-header line
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -185,7 +185,7 @@ func extractSummary(body string) string {
 			return line
 		}
 	}
-	
+
 	return "No summary provided"
 }
 
@@ -194,10 +194,10 @@ func extractBulletPoints(body string, keywords ...string) []string {
 	var points []string
 	lines := strings.Split(body, "\n")
 	inSection := false
-	
+
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(strings.ToLower(line))
-		
+
 		// Check if we're entering a relevant section
 		for _, keyword := range keywords {
 			if strings.Contains(trimmed, keyword) && strings.HasPrefix(line, "#") {
@@ -205,12 +205,12 @@ func extractBulletPoints(body string, keywords ...string) []string {
 				break
 			}
 		}
-		
+
 		// Check if we're leaving the section
 		if inSection && strings.HasPrefix(line, "#") && !containsAny(trimmed, keywords...) {
 			inSection = false
 		}
-		
+
 		// Extract bullet points
 		if inSection && strings.HasPrefix(strings.TrimSpace(line), "-") {
 			point := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(line), "-"))
@@ -219,7 +219,7 @@ func extractBulletPoints(body string, keywords ...string) []string {
 			}
 		}
 	}
-	
+
 	return points
 }
 
@@ -237,7 +237,7 @@ func containsAny(text string, keywords ...string) bool {
 func enhanceLabels(templateName string, existing []string) []string {
 	labels := make([]string, len(existing))
 	copy(labels, existing)
-	
+
 	// Add template-specific label if not present
 	templateLabel := templateName
 	hasLabel := false
@@ -247,32 +247,32 @@ func enhanceLabels(templateName string, existing []string) []string {
 			break
 		}
 	}
-	
+
 	if !hasLabel {
 		labels = append(labels, templateLabel)
 	}
-	
+
 	return labels
 }
 
 // SelectTemplateByContext automatically selects a template based on context
 func SelectTemplateByContext(ctx *ai.AIContext) string {
 	changeType := detectChangeType(ctx)
-	
+
 	// Map change types to template names
 	templateMap := map[string]string{
-		"feature": "feature",
-		"bugfix":  "bugfix",
-		"hotfix":  "hotfix",
+		"feature":  "feature",
+		"bugfix":   "bugfix",
+		"hotfix":   "hotfix",
 		"refactor": "refactor",
-		"docs":    "docs",
-		"test":    "test",
-		"deps":    "deps",
+		"docs":     "docs",
+		"test":     "test",
+		"deps":     "deps",
 	}
-	
+
 	if template, ok := templateMap[changeType]; ok {
 		return template
 	}
-	
+
 	return "feature" // default
 }

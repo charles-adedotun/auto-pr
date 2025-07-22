@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/template"
 	"time"
-	
+
 	"auto-pr/pkg/types"
 )
 
@@ -33,10 +33,10 @@ type Template struct {
 func NewManager() *Manager {
 	homeDir, _ := os.UserHomeDir()
 	customDir := filepath.Join(homeDir, ".auto-pr", "templates")
-	
+
 	// Ensure custom templates directory exists
 	os.MkdirAll(customDir, 0755)
-	
+
 	return &Manager{
 		customDir: customDir,
 	}
@@ -88,14 +88,14 @@ func (m *Manager) ListBuiltInTemplates() []Template {
 			IsBuiltIn:   true,
 		},
 	}
-	
+
 	return templates
 }
 
 // ListCustomTemplates returns all custom templates
 func (m *Manager) ListCustomTemplates() ([]Template, error) {
 	var templates []Template
-	
+
 	entries, err := os.ReadDir(m.customDir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -103,12 +103,12 @@ func (m *Manager) ListCustomTemplates() ([]Template, error) {
 		}
 		return nil, err
 	}
-	
+
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".tmpl") {
 			continue
 		}
-		
+
 		name := strings.TrimSuffix(entry.Name(), ".tmpl")
 		templates = append(templates, Template{
 			Name:      name,
@@ -117,7 +117,7 @@ func (m *Manager) ListCustomTemplates() ([]Template, error) {
 			IsBuiltIn: false,
 		})
 	}
-	
+
 	return templates, nil
 }
 
@@ -129,7 +129,7 @@ func (m *Manager) GetTemplate(name string) (*Template, error) {
 			return &tmpl, nil
 		}
 	}
-	
+
 	// Check custom templates
 	customPath := filepath.Join(m.customDir, name+".tmpl")
 	if _, err := os.Stat(customPath); err == nil {
@@ -140,7 +140,7 @@ func (m *Manager) GetTemplate(name string) (*Template, error) {
 			IsBuiltIn: false,
 		}, nil
 	}
-	
+
 	return nil, fmt.Errorf("template '%s' not found", name)
 }
 
@@ -150,7 +150,7 @@ func (m *Manager) CreateTemplate(name, templateType, fromTemplate string) (*Temp
 	if _, err := m.GetTemplate(name); err == nil {
 		return nil, fmt.Errorf("template '%s' already exists", name)
 	}
-	
+
 	// Create template file
 	path := filepath.Join(m.customDir, name+".tmpl")
 	file, err := os.Create(path)
@@ -158,7 +158,7 @@ func (m *Manager) CreateTemplate(name, templateType, fromTemplate string) (*Temp
 		return nil, fmt.Errorf("failed to create template file: %w", err)
 	}
 	defer file.Close()
-	
+
 	// Write initial content
 	var content string
 	if fromTemplate != "" {
@@ -167,7 +167,7 @@ func (m *Manager) CreateTemplate(name, templateType, fromTemplate string) (*Temp
 		if err != nil {
 			return nil, fmt.Errorf("base template '%s' not found", fromTemplate)
 		}
-		
+
 		baseContent, err := m.LoadTemplateContent(baseTmpl)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load base template: %w", err)
@@ -177,11 +177,11 @@ func (m *Manager) CreateTemplate(name, templateType, fromTemplate string) (*Temp
 		// Use default content based on type
 		content = m.getDefaultTemplateContent(templateType)
 	}
-	
+
 	if _, err := file.WriteString(content); err != nil {
 		return nil, fmt.Errorf("failed to write template content: %w", err)
 	}
-	
+
 	return &Template{
 		Name:      name,
 		Type:      templateType,
@@ -200,13 +200,13 @@ func (m *Manager) LoadTemplateContent(tmpl *Template) (string, error) {
 		}
 		return string(content), nil
 	}
-	
+
 	// Load from file
 	content, err := os.ReadFile(tmpl.Path)
 	if err != nil {
 		return "", fmt.Errorf("failed to read template file: %w", err)
 	}
-	
+
 	return string(content), nil
 }
 
@@ -216,11 +216,11 @@ func (m *Manager) DeleteTemplate(name string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	if tmpl.IsBuiltIn {
 		return fmt.Errorf("cannot delete built-in template")
 	}
-	
+
 	return os.Remove(tmpl.Path)
 }
 
@@ -240,23 +240,23 @@ func (m *Manager) RenderTemplate(templateName string, ctx *TemplateContext) (str
 	if err != nil {
 		return "", err
 	}
-	
+
 	content, err := m.LoadTemplateContent(tmpl)
 	if err != nil {
 		return "", err
 	}
-	
+
 	// Parse and execute template
 	t, err := template.New(templateName).Parse(content)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse template: %w", err)
 	}
-	
+
 	var buf strings.Builder
 	if err := t.Execute(&buf, ctx); err != nil {
 		return "", fmt.Errorf("failed to execute template: %w", err)
 	}
-	
+
 	return buf.String(), nil
 }
 
@@ -281,30 +281,30 @@ func (m *Manager) getDefaultTemplateContent(templateType string) string {
 // TemplateContext contains data for rendering templates
 type TemplateContext struct {
 	// PR/MR metadata
-	Title       string
-	Type        string
-	Branch      string
-	BaseBranch  string
-	Author      string
-	Date        time.Time
-	
+	Title      string
+	Type       string
+	Branch     string
+	BaseBranch string
+	Author     string
+	Date       time.Time
+
 	// Change information
-	CommitCount   int
-	FilesChanged  int
-	Additions     int
-	Deletions     int
-	Commits       []types.CommitInfo
-	FileChanges   []types.FileChange
-	
+	CommitCount  int
+	FilesChanged int
+	Additions    int
+	Deletions    int
+	Commits      []types.CommitInfo
+	FileChanges  []types.FileChange
+
 	// Content sections
-	Summary       string
-	Description   string
-	Changes       []string
-	TestPlan      []string
-	Checklist     []string
-	
+	Summary     string
+	Description string
+	Changes     []string
+	TestPlan    []string
+	Checklist   []string
+
 	// Custom fields
-	Custom        map[string]interface{}
+	Custom map[string]interface{}
 }
 
 // Default template contents

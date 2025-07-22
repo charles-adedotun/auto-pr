@@ -2,20 +2,20 @@ package types
 
 // Config represents the application configuration
 type Config struct {
-	AI        AIConfig        `yaml:"ai"`
-	Platforms PlatformConfig  `yaml:"platforms"`
-	Templates TemplateConfig  `yaml:"templates"`
-	Git       GitConfig       `yaml:"git"`
+	AI        AIConfig       `yaml:"ai"`
+	Platforms PlatformConfig `yaml:"platforms"`
+	Templates TemplateConfig `yaml:"templates"`
+	Git       GitConfig      `yaml:"git"`
 }
 
 // AIConfig contains AI service configuration
 type AIConfig struct {
-	Provider    AIProvider `yaml:"provider"`
-	Model       string     `yaml:"model"`
-	APIKey      string     `yaml:"api_key,omitempty"`
-	MaxTokens   int        `yaml:"max_tokens"`
-	Temperature float32    `yaml:"temperature"`
-	ProjectID   string     `yaml:"project_id,omitempty"`
+	Provider    AIProvider   `yaml:"provider"`
+	Model       string       `yaml:"model"`
+	APIKey      string       `yaml:"api_key,omitempty"`
+	MaxTokens   int          `yaml:"max_tokens"`
+	Temperature float32      `yaml:"temperature"`
+	ProjectID   string       `yaml:"project_id,omitempty"`
 	Claude      ClaudeConfig `yaml:"claude,omitempty"`
 	Gemini      GeminiConfig `yaml:"gemini,omitempty"`
 }
@@ -55,10 +55,10 @@ type PlatformConfig struct {
 // GitHubConfig contains GitHub-specific settings
 type GitHubConfig struct {
 	DefaultReviewers []string `yaml:"default_reviewers"`
-	Labels          []string `yaml:"labels"`
-	Draft           bool     `yaml:"draft"`
-	AutoMerge       bool     `yaml:"auto_merge"`
-	DeleteBranch    bool     `yaml:"delete_branch"`
+	Labels           []string `yaml:"labels"`
+	Draft            bool     `yaml:"draft"`
+	AutoMerge        bool     `yaml:"auto_merge"`
+	DeleteBranch     bool     `yaml:"delete_branch"`
 }
 
 // GitLabConfig contains GitLab-specific settings
@@ -77,17 +77,17 @@ type TemplateConfig struct {
 
 // GitConfig contains git-related settings
 type GitConfig struct {
-	CommitLimit     int      `yaml:"commit_limit"`
-	DiffContext     int      `yaml:"diff_context"`
-	IgnorePatterns  []string `yaml:"ignore_patterns"`
-	MaxDiffSize     int      `yaml:"max_diff_size"`
+	CommitLimit    int      `yaml:"commit_limit"`
+	DiffContext    int      `yaml:"diff_context"`
+	IgnorePatterns []string `yaml:"ignore_patterns"`
+	MaxDiffSize    int      `yaml:"max_diff_size"`
 }
 
 // PlatformType represents different git platforms
 type PlatformType string
 
 const (
-	PlatformGitHub PlatformType = "github"
-	PlatformGitLab PlatformType = "gitlab"
+	PlatformGitHub  PlatformType = "github"
+	PlatformGitLab  PlatformType = "gitlab"
 	PlatformUnknown PlatformType = "unknown"
 )

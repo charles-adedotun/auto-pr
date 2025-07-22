@@ -2,7 +2,7 @@ package platforms
 
 import (
 	"testing"
-	
+
 	"auto-pr/pkg/types"
 )
 
@@ -56,7 +56,7 @@ func TestDetectPlatform(t *testing.T) {
 			wantErr:  false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := DetectPlatform(tt.url)
@@ -108,7 +108,7 @@ func TestExtractRepoInfo(t *testing.T) {
 			wantErr:   false,
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotOwner, gotRepo, err := ExtractRepoInfo(tt.url)
@@ -153,7 +153,7 @@ func TestCleanRemoteURL(t *testing.T) {
 			expected: "https://gitlab.com/user/repo",
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := cleanRemoteURL(tt.url)
