@@ -29,22 +29,34 @@ jobs:
         mkdir -p dist
         
         # Linux amd64
-        GOOS=linux GOARCH=amd64 go build -o dist/auto-pr-linux-amd64 .
+        GOOS=linux GOARCH=amd64 go build -o auto-pr .
+        tar czf dist/auto-pr-linux-amd64.tar.gz auto-pr
+        rm auto-pr
         
         # Linux arm64
-        GOOS=linux GOARCH=arm64 go build -o dist/auto-pr-linux-arm64 .
+        GOOS=linux GOARCH=arm64 go build -o auto-pr .
+        tar czf dist/auto-pr-linux-arm64.tar.gz auto-pr
+        rm auto-pr
         
         # macOS amd64
-        GOOS=darwin GOARCH=amd64 go build -o dist/auto-pr-darwin-amd64 .
+        GOOS=darwin GOARCH=amd64 go build -o auto-pr .
+        tar czf dist/auto-pr-darwin-amd64.tar.gz auto-pr
+        rm auto-pr
         
         # macOS arm64
-        GOOS=darwin GOARCH=arm64 go build -o dist/auto-pr-darwin-arm64 .
+        GOOS=darwin GOARCH=arm64 go build -o auto-pr .
+        tar czf dist/auto-pr-darwin-arm64.tar.gz auto-pr
+        rm auto-pr
         
         # Windows amd64
-        GOOS=windows GOARCH=amd64 go build -o dist/auto-pr-windows-amd64.exe .
+        GOOS=windows GOARCH=amd64 go build -o auto-pr.exe .
+        tar czf dist/auto-pr-windows-amd64.tar.gz auto-pr.exe
+        rm auto-pr.exe
         
         # Windows arm64
-        GOOS=windows GOARCH=arm64 go build -o dist/auto-pr-windows-arm64.exe .
+        GOOS=windows GOARCH=arm64 go build -o auto-pr.exe .
+        tar czf dist/auto-pr-windows-arm64.tar.gz auto-pr.exe
+        rm auto-pr.exe
     
     - name: Create checksums
       run: |
