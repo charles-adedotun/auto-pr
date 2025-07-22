@@ -63,7 +63,7 @@ func TestValidateConfig(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "Invalid commit limit",
+			name: "Valid commit limit zero (default)",
 			config: &types.Config{
 				AI: types.AIConfig{
 					Provider:    types.AIProviderAuto,
@@ -71,7 +71,23 @@ func TestValidateConfig(t *testing.T) {
 					Temperature: 0.7,
 				},
 				Git: types.GitConfig{
-					CommitLimit: 0, // Too low
+					CommitLimit: 0, // Zero is valid (means use default)
+					DiffContext: 3,
+					MaxDiffSize: 10000,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Invalid commit limit negative",
+			config: &types.Config{
+				AI: types.AIConfig{
+					Provider:    types.AIProviderAuto,
+					MaxTokens:   4096,
+					Temperature: 0.7,
+				},
+				Git: types.GitConfig{
+					CommitLimit: -1, // Negative is invalid
 					DiffContext: 3,
 					MaxDiffSize: 10000,
 				},
