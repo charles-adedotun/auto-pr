@@ -1,0 +1,64 @@
+{{.Title}}
+
+## ♻️ Refactoring
+
+## 📝 Motivation
+{{.Description}}
+
+## 🎯 Goals
+- [ ] Improve code readability
+- [ ] Reduce complexity
+- [ ] Enhance maintainability
+- [ ] Optimize performance
+- [ ] Remove technical debt
+
+## 🔧 Changes
+{{range .FileChanges}}- `{{.Path}}` - {{.Status}}
+{{end}}
+
+## 📊 Metrics
+- **Files refactored**: {{.FilesChanged}}
+- **Lines modified**: {{.Additions}} added, {{.Deletions}} removed
+- **Complexity reduction**: [if measurable]
+- **Performance improvement**: [if applicable]
+
+## 🏗️ Refactoring Details
+### Before
+```
+[Show problematic code pattern]
+```
+
+### After
+```
+[Show improved code pattern]
+```
+
+## ✅ Verification
+- [ ] All tests pass (no functionality change)
+- [ ] Code coverage maintained or improved
+- [ ] Performance benchmarks (if applicable)
+- [ ] No breaking changes
+- [ ] API contracts preserved
+
+## 🧪 Testing Strategy
+- [ ] Unit tests still pass
+- [ ] Integration tests still pass
+- [ ] Manual regression testing
+- [ ] Performance testing (if applicable)
+{{range .TestPlan}}- [ ] {{.}}
+{{end}}
+
+## 📋 Code Quality Checklist
+- [ ] SOLID principles followed
+- [ ] DRY principle applied
+- [ ] Clear naming conventions
+- [ ] Proper abstraction levels
+- [ ] Documentation updated
+
+## 🚀 Benefits
+- **Immediate**: [List immediate benefits]
+- **Long-term**: [List long-term benefits]
+
+## ⚠️ Risks
+- **Risk Level**: Low (no functional changes)
+- **Mitigation**: Comprehensive test coverage

@@ -1,0 +1,60 @@
+{{.Title}}
+
+## 📚 Documentation Update
+
+## 📝 Summary
+{{.Summary}}
+
+## 🎯 Purpose
+{{.Description}}
+
+## 📂 Files Updated
+{{range .FileChanges}}- `{{.Path}}`{{if eq .Status "added"}} (NEW){{end}}
+{{end}}
+
+## 📖 Documentation Changes
+{{range .Changes}}- {{.}}
+{{else}}### Added
+- [List new documentation]
+
+### Updated
+- [List updated sections]
+
+### Removed
+- [List removed/deprecated content]{{end}}
+
+## ✅ Review Checklist
+- [ ] Grammar and spelling checked
+- [ ] Technical accuracy verified
+- [ ] Code examples tested
+- [ ] Links validated (no 404s)
+- [ ] Formatting consistent
+- [ ] Table of contents updated
+- [ ] Version numbers correct
+- [ ] Cross-references updated
+
+## 🧪 Validation
+- [ ] Code snippets executable
+- [ ] Commands tested
+- [ ] Screenshots up-to-date
+- [ ] API examples accurate
+- [ ] Installation steps verified
+
+## 📊 Documentation Coverage
+- **Before**: [X]% documented
+- **After**: [Y]% documented
+- **New sections**: {{.FilesChanged}}
+
+## 🔍 Target Audience
+- [ ] New users
+- [ ] Developers
+- [ ] System administrators
+- [ ] API consumers
+
+## 🌐 Translations
+- [ ] English (primary)
+- [ ] Other languages updated (if applicable)
+
+## 📋 Related
+- Documentation style guide followed
+- Relates to PR/Issue #[number]

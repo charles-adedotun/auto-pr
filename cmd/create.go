@@ -7,6 +7,7 @@ import (
 	"auto-pr/internal/config"
 	"auto-pr/internal/git"
 	"auto-pr/internal/platforms"
+	"auto-pr/internal/templates"
 	"auto-pr/pkg/types"
 	
 	"github.com/spf13/cobra"
@@ -134,6 +135,36 @@ func runCreate(cmd *cobra.Command, args []string) error {
 	
 	if verbose {
 		fmt.Printf("AI generated content (confidence: %.2f)\n", aiResponse.Confidence)
+	}
+	
+	// Apply template if specified
+	templateName := viper.GetString("template")
+	if templateName != "" {
+		templateManager := templates.NewManager()
+		enhanced, err := templates.EnhanceWithTemplate(templateManager, templateName, aiContext, aiResponse)
+		if err != nil {
+			if verbose {
+				fmt.Printf("Warning: failed to apply template '%s': %v\n", templateName, err)
+			}
+		} else {
+			aiResponse = enhanced
+			if verbose {
+				fmt.Printf("Applied template: %s\n", templateName)
+			}
+		}
+	} else {
+		// Auto-select template based on context
+		templateManager := templates.NewManager()
+		autoTemplate := templates.SelectTemplateByContext(aiContext)
+		if autoTemplate != "" {
+			enhanced, err := templates.EnhanceWithTemplate(templateManager, autoTemplate, aiContext, aiResponse)
+			if err == nil {
+				aiResponse = enhanced
+				if verbose {
+					fmt.Printf("Auto-selected template: %s\n", autoTemplate)
+				}
+			}
+		}
 	}
 	
 	if dryRun {

@@ -1,0 +1,37 @@
+{{.Title}}
+
+## 🚀 Summary
+{{.Summary}}
+
+## 📝 Description
+{{.Description}}
+
+## 🔧 Changes
+{{range .FileChanges}}- `{{.Path}}` - {{.Status}} ({{if gt .Additions 0}}+{{.Additions}}{{end}}{{if gt .Deletions 0}}, -{{.Deletions}}{{end}})
+{{end}}
+
+## 📊 Statistics
+- **Commits**: {{.CommitCount}}
+- **Files changed**: {{.FilesChanged}}
+- **Lines added**: {{.Additions}}
+- **Lines removed**: {{.Deletions}}
+
+## 🧪 Testing
+{{range .TestPlan}}- [ ] {{.}}
+{{else}}- [ ] Unit tests added/updated
+- [ ] Integration tests pass
+- [ ] Manual testing completed
+- [ ] No regressions introduced{{end}}
+
+## 📋 Checklist
+- [ ] Code follows project conventions
+- [ ] Self-review completed
+- [ ] Documentation updated (if needed)
+- [ ] Changes are backwards compatible
+- [ ] Performance impact considered
+
+## 🔗 Related Issues
+- Closes #[issue-number]
+
+## 📸 Screenshots (if applicable)
+<!-- Add screenshots here if UI changes are involved -->

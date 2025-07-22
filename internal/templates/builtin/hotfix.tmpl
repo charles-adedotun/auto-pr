@@ -1,0 +1,65 @@
+{{.Title}}
+
+## 🔥 HOTFIX - Critical Issue
+
+### 🚨 Severity: CRITICAL
+
+## 📝 Issue Description
+{{.Description}}
+
+## 💥 Impact
+- **Production Status**: [Affected/At Risk]
+- **Users Affected**: [Number/Percentage]
+- **Services Impacted**: [List services]
+- **Business Impact**: [Revenue/Operations/Customer impact]
+
+## 🔧 Emergency Fix
+{{.Summary}}
+
+## 📂 Changes
+{{range .FileChanges}}- `{{.Path}}` - {{.Status}} (CRITICAL PATH)
+{{end}}
+
+## 🧪 Testing Performed
+- [ ] Fix tested locally
+- [ ] Fix tested in staging/pre-prod
+- [ ] Smoke tests pass
+- [ ] No side effects identified
+- [ ] Performance impact verified
+
+## 🚀 Deployment Plan
+1. [ ] Merge to main immediately
+2. [ ] Deploy to production
+3. [ ] Monitor for 30 minutes
+4. [ ] Verify fix effectiveness
+
+## 🔄 Rollback Plan
+```bash
+# If rollback needed:
+git revert {{.Branch}}
+# Deploy previous version
+```
+
+## 📊 Monitoring
+- [ ] Alerts configured
+- [ ] Dashboards updated
+- [ ] Success metrics defined
+- [ ] Error rates monitoring
+
+## 📋 Post-Deployment
+- [ ] Incident report created
+- [ ] Root cause analysis scheduled
+- [ ] Long-term fix ticket created
+- [ ] Team retrospective scheduled
+
+## ⏰ Timeline
+- **Issue Detected**: [Time]
+- **Fix Started**: [Time]
+- **Fix Completed**: [Time]
+- **Deployment Time**: [Time]
+
+## 👥 Stakeholders Notified
+- [ ] Engineering Lead
+- [ ] Product Manager
+- [ ] Customer Support
+- [ ] Executive Team (if needed)
