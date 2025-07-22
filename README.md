@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/charles-adedotun/auto-pr)](https://goreportcard.com/report/github.com/charles-adedotun/auto-pr)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Auto PR is a powerful CLI tool that automatically generates pull requests and merge requests using Claude Code. It analyzes your git changes, commit history, and repository context to create meaningful PR/MR titles, descriptions, and metadata for GitHub and GitLab.
+Auto PR is a powerful CLI tool that automatically generates pull requests and merge requests using Claude Code. It analyzes your git changes, commit history, and repository context to create meaningful PR/MR titles, descriptions, and metadata for GitHub and GitLab. Now with super simple one-command workflows!
 
 ## Features
 

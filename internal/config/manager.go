@@ -90,7 +90,7 @@ func validateAIConfig(ai *types.AIConfig) error {
 	case "", "auto":
 		ai.Provider = types.AIProviderClaude // Default to Claude or convert auto to Claude
 	case "gemini":
-		return fmt.Errorf("Gemini provider is no longer supported. Please use Claude Code instead")
+		return fmt.Errorf("gemini provider is no longer supported. Please use Claude Code instead")
 	default:
 		return fmt.Errorf("invalid AI provider: %s", ai.Provider)
 	}
