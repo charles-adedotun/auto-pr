@@ -53,7 +53,7 @@ brew install auto-pr
    # The ultimate shortcut - does everything!
    auto-pr ship
    # This will: stage → commit → push → create PR
-   # Perfect for when you just want to ship your changes fast!
+   # Perfect for when you just want to ship your changes fast! ⚡
    # Zero configuration - the app handles everything intelligently!
    
    # Other simple aliases:
