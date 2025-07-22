@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os/exec"
+	"time"
 
 	"auto-pr/internal/git"
 
@@ -67,6 +69,24 @@ func runShip(cmd *cobra.Command, args []string) error {
 	if !canCreatePR {
 		fmt.Println("📭 No changes to ship - working directory is clean and up to date")
 		return nil
+	}
+
+	// SUPER SMART: If we're on main/master and have changes, create a feature branch first
+	isOnDefaultBranch := status.CurrentBranch == "main" || status.CurrentBranch == "master"
+	if isOnDefaultBranch && needsCommit {
+		fmt.Println("🌿 On default branch with changes - creating feature branch...")
+		
+		// Generate feature branch name
+		branchName := fmt.Sprintf("feature/auto-ship-%s", time.Now().Format("2006-01-02-15-04-05"))
+		
+		if dryRun {
+			fmt.Printf("   Would create feature branch: %s\n", branchName)
+		} else {
+			if err := createFeatureBranch(branchName); err != nil {
+				return fmt.Errorf("failed to create feature branch: %w", err)
+			}
+			fmt.Printf("✅ Created and switched to branch: %s\n", branchName)
+		}
 	}
 
 	stepNum := 1
@@ -143,5 +163,11 @@ func runShip(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+// createFeatureBranch creates and switches to a new feature branch
+func createFeatureBranch(branchName string) error {
+	cmd := exec.Command("git", "checkout", "-b", branchName)
+	return cmd.Run()
 }
 
