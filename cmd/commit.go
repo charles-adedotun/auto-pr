@@ -56,8 +56,11 @@ func runCommit(cmd *cobra.Command, args []string) error {
 
 	// Stage files if requested
 	if stageAll {
-		fmt.Println("🔄 Staging all changes...")
-		if !dryRun {
+		if dryRun {
+			fmt.Printf("🔄 Would stage %d unstaged and %d untracked files\n", 
+				len(status.UnstagedFiles), len(status.UntrackedFiles))
+		} else {
+			fmt.Println("🔄 Staging all changes...")
 			if err := stageAllChanges(); err != nil {
 				return fmt.Errorf("failed to stage changes: %w", err)
 			}
@@ -66,8 +69,8 @@ func runCommit(cmd *cobra.Command, args []string) error {
 			if err != nil {
 				return fmt.Errorf("failed to get updated repository status: %w", err)
 			}
+			fmt.Println("✅ Changes staged")
 		}
-		fmt.Println("✅ Changes staged")
 	}
 
 	if len(status.StagedFiles) == 0 && !amend && !stageAll {

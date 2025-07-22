@@ -62,8 +62,9 @@ func runShip(cmd *cobra.Command, args []string) error {
 	// Smart workflow - only do what's needed
 	needsCommit := len(status.UnstagedFiles) > 0 || len(status.UntrackedFiles) > 0 || len(status.StagedFiles) > 0
 	needsPush := status.CommitsAhead > 0 // Will be true after we commit
+	canCreatePR := needsCommit || status.CommitsAhead > 0 // Can create PR if we have changes or unpushed commits
 	
-	if !needsCommit && status.CommitsAhead == 0 {
+	if !canCreatePR {
 		fmt.Println("📭 No changes to ship - working directory is clean and up to date")
 		return nil
 	}
