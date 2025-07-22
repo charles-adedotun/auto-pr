@@ -131,8 +131,14 @@ func createCommit(message string, amend bool) error {
 }
 
 func pushChanges() error {
+	// First try regular push
 	cmd := exec.Command("git", "push")
-	return cmd.Run()
+	if err := cmd.Run(); err != nil {
+		// If that fails, try push with set-upstream for new branches
+		cmd = exec.Command("git", "push", "--set-upstream", "origin", "HEAD")
+		return cmd.Run()
+	}
+	return nil
 }
 
 func generateCommitMessage(gitAnalyzer *git.Analyzer, status *types.GitStatus) (string, error) {
