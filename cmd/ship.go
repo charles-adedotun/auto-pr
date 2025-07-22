@@ -51,18 +51,14 @@ func runShip(cmd *cobra.Command, args []string) error {
 
 	fmt.Println("💾 Step 2: Creating commit...")
 	
-	// Create commit (reuse the commit command logic)
-	commitArgs := []string{}
-	if message != "" {
-		commitArgs = append(commitArgs, "--message", message)
-	}
-	if dryRun {
-		commitArgs = append(commitArgs, "--dry-run")
-	}
-
-	// Call the commit command
-	commitCmd.SetArgs(commitArgs)
-	if err := commitCmd.Execute(); err != nil {
+	// Create a new cobra command context for commit
+	commitCmd := &cobra.Command{}
+	commitCmd.Flags().Bool("all", true, "")
+	commitCmd.Flags().String("message", message, "")
+	commitCmd.Flags().Bool("push", !noPush && !noPR, "") // Only push if not disabled and not creating PR
+	commitCmd.Flags().Bool("dry-run", dryRun, "")
+	
+	if err := runCommit(commitCmd, []string{}); err != nil {
 		return fmt.Errorf("commit failed: %w", err)
 	}
 
@@ -71,7 +67,8 @@ func runShip(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	if !noPush {
+	// Push if not done by commit and not disabled
+	if !noPush && noPR {
 		fmt.Println("🌐 Step 3: Pushing to remote...")
 		if err := pushChanges(); err != nil {
 			return fmt.Errorf("failed to push: %w", err)
@@ -82,18 +79,13 @@ func runShip(cmd *cobra.Command, args []string) error {
 	if !noPR {
 		fmt.Println("🔀 Step 4: Creating pull request...")
 		
-		// Build create command args
-		createArgs := []string{}
-		if draft {
-			createArgs = append(createArgs, "--draft")
-		}
-		for _, reviewer := range reviewers {
-			createArgs = append(createArgs, "--reviewer", reviewer)
-		}
-
-		// Call the create command
-		createCmd.SetArgs(createArgs)
-		if err := createCmd.Execute(); err != nil {
+		// Create a new cobra command context for create
+		createCmd := &cobra.Command{}
+		createCmd.Flags().Bool("draft", draft, "")
+		createCmd.Flags().StringSlice("reviewer", reviewers, "")
+		createCmd.Flags().Bool("dry-run", dryRun, "")
+		
+		if err := runCreate(createCmd, []string{}); err != nil {
 			return fmt.Errorf("PR creation failed: %w", err)
 		}
 	}
