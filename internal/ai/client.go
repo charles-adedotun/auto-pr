@@ -16,6 +16,8 @@ func NewClient(config types.AIConfig) (AIClient, error) {
 		return NewGeminiClient(config.Gemini)
 	case types.AIProviderAuto:
 		return NewAutoClient(config)
+	case types.AIProviderMCP:
+		return NewMCPClient(), nil
 	default:
 		return nil, fmt.Errorf("unsupported AI provider: %s", config.Provider)
 	}

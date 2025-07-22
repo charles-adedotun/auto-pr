@@ -27,6 +27,7 @@ const (
 	AIProviderClaude AIProvider = "claude"
 	AIProviderGemini AIProvider = "gemini"
 	AIProviderAuto   AIProvider = "auto" // Auto-detect based on available CLI tools
+	AIProviderMCP    AIProvider = "mcp"  // MCP server mode (no external AI needed)
 )
 
 // ClaudeConfig contains Claude-specific configuration
