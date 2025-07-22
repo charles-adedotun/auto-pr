@@ -283,3 +283,24 @@ func mapGitHubState(ghState string) types.PRState {
 		return types.PRStateOpen
 	}
 }
+
+// GetPlatform returns the platform type
+func (g *GitHubClient) GetPlatform() types.PlatformType {
+	return types.PlatformGitHub
+}
+
+// GetSupportedFeatures returns supported GitHub features
+func (g *GitHubClient) GetSupportedFeatures() []string {
+	return []string{
+		"pull-requests",
+		"labels",
+		"reviewers",
+		"draft-pr",
+		"auto-merge",
+		"milestones",
+		"projects",
+		"assignees",
+		"codeowners",
+		"branch-protection",
+	}
+}

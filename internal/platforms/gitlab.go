@@ -267,3 +267,25 @@ func mapGitLabState(glState string) types.PRState {
 		return types.PRStateOpen
 	}
 }
+
+// GetPlatform returns the platform type
+func (g *GitLabClient) GetPlatform() types.PlatformType {
+	return types.PlatformGitLab
+}
+
+// GetSupportedFeatures returns supported GitLab features
+func (g *GitLabClient) GetSupportedFeatures() []string {
+	return []string{
+		"merge-requests",
+		"labels",
+		"reviewers",
+		"draft-mr",
+		"auto-merge",
+		"milestones",
+		"assignees",
+		"approvals",
+		"merge-when-pipeline-succeeds",
+		"squash-commits",
+		"delete-source-branch",
+	}
+}

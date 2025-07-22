@@ -15,6 +15,7 @@ Auto PR is a powerful CLI tool that automatically generates pull requests and me
 - ⚡ **Fast & Efficient**: Single binary, no dependencies
 - 🛠️ **Configurable**: Extensive configuration options via YAML/JSON/ENV
 - 🔐 **Secure**: Uses existing GitHub CLI and GitLab CLI authentication
+- 🔌 **MCP Server**: Use as a tool in Claude Code and other MCP-compatible AI assistants
 
 ## Quick Start
 
@@ -164,6 +165,14 @@ auto-pr config validate           # Validate current configuration
 auto-pr status                    # Show repository status and readiness
 ```
 
+### MCP Server Mode
+```bash
+auto-pr mcp                       # Run as MCP server for AI assistants
+
+# Add to Claude Code
+claude mcp add auto-pr auto-pr mcp
+```
+
 ### Template Management
 ```bash
 auto-pr template list             # List available templates
@@ -255,6 +264,28 @@ conditions:
 - Supports GitLab MR features: assignees, labels, milestones
 - Works with both GitLab.com and self-hosted instances
 - Template detection from `.gitlab/merge_request_templates/`
+
+## MCP Integration (Claude Code)
+
+Auto PR can be used as an MCP (Model Context Protocol) server, allowing direct integration with Claude Code:
+
+### Quick Setup
+```bash
+# Add Auto PR to Claude Code
+claude mcp add auto-pr auto-pr mcp
+```
+
+### Available Tools
+- **repo_status**: Check repository status and changes
+- **analyze_changes**: Analyze commits and diffs
+- **create_pr**: Create pull requests with AI assistance
+
+### Example Usage in Claude Code
+```
+"Check the repository status and create a PR for the current changes"
+```
+
+See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for detailed setup and usage.
 
 ## AI Integration
 

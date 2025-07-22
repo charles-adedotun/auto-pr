@@ -209,3 +209,17 @@ func (a *Analyzer) parseStatOutput(output string) (*types.DiffSummary, error) {
 	
 	return summary, nil
 }
+
+// GetRecentCommits gets the most recent commits
+func (a *Analyzer) GetRecentCommits(limit int) ([]types.CommitInfo, error) {
+	cmd := exec.Command("git", "log", fmt.Sprintf("-%d", limit),
+		"--pretty=format:%H|%an|%ae|%at|%s", "--reverse")
+	cmd.Dir = a.repoPath
+	
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get recent commits: %w", err)
+	}
+	
+	return a.parseCommitHistory(string(output))
+}
