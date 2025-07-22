@@ -59,29 +59,18 @@ func (c *ClaudeClient) GenerateContent(ctx *AIContext, prompt string) (*AIRespon
 	fullPrompt := c.buildPrompt(ctx, prompt)
 	
 	// Prepare claude CLI command
-	args := []string{}
-	
-	// Add model specification if not using session
-	if !c.useSession {
-		args = append(args, "--model", c.model)
+	args := []string{
+		"--print", // Non-interactive mode
+		"--output-format", "text", // Text output format
+		"--model", c.model, // Specify model
 	}
 	
-	// Add max tokens
-	args = append(args, "--max-tokens", fmt.Sprintf("%d", c.maxTokens))
-	
-	// Use session mode if configured
-	if c.useSession {
-		args = append(args, "--session")
-	}
-	
-	// Add the prompt
-	args = append(args, fullPrompt)
-	
-	// Execute claude CLI
+	// Execute claude CLI with prompt via stdin
 	cmd := exec.Command(c.cliPath, args...)
-	output, err := cmd.Output()
+	cmd.Stdin = strings.NewReader(fullPrompt)
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("claude CLI execution failed: %w", err)
+		return nil, fmt.Errorf("claude CLI execution failed: %w\nOutput: %s", err, string(output))
 	}
 	
 	// Parse the response
