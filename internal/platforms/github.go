@@ -116,9 +116,9 @@ func (g *GitHubClient) CreatePullRequest(req *types.PullRequestRequest) (*types.
 	
 	// Execute command
 	cmd := exec.Command(g.cliPath, args...)
-	output, err := cmd.Output()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create pull request: %w", err)
+		return nil, fmt.Errorf("failed to create pull request: %w\nOutput: %s\nArgs: %v", err, string(output), args)
 	}
 	
 	// Parse the PR URL from output

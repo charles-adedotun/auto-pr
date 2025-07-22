@@ -3,12 +3,12 @@ package cmd
 import (
 	"fmt"
 	"os"
-	
+
 	"auto-pr/internal/ai"
 	"auto-pr/internal/git"
 	"auto-pr/internal/platforms"
 	"auto-pr/pkg/types"
-	
+
 	"github.com/spf13/cobra"
 )
 
@@ -26,13 +26,13 @@ func init() {
 func runStatus(cmd *cobra.Command, args []string) error {
 	fmt.Println("🔍 Auto PR Status Check")
 	fmt.Println("========================")
-	
+
 	// Initialize git analyzer
 	gitAnalyzer, err := git.NewAnalyzer(".")
 	if err != nil {
 		return fmt.Errorf("failed to initialize git analyzer: %w", err)
 	}
-	
+
 	// Check git repository
 	fmt.Println("\n📁 Repository Information:")
 	if !gitAnalyzer.IsGitRepository() {
@@ -40,36 +40,37 @@ func runStatus(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 	fmt.Println("   ✅ Git repository detected")
-	
+
 	// Get repository status
 	status, err := gitAnalyzer.GetStatus()
 	if err != nil {
 		fmt.Printf("   ❌ Failed to get repository status: %s\n", err)
 		return nil
 	}
-	
+
 	fmt.Printf("   📋 Current branch: %s\n", status.CurrentBranch)
 	fmt.Printf("   📋 Base branch: %s\n", status.BaseBranch)
-	
+
 	if status.RemoteURL != "" {
 		fmt.Printf("   🔗 Remote URL: %s\n", status.RemoteURL)
-		
+
 		// Detect platform
 		platform, err := platforms.DetectPlatform(status.RemoteURL)
 		if err != nil {
 			fmt.Printf("   ❓ Platform: Unknown (%s)\n", err)
 		} else {
 			fmt.Printf("   🌐 Platform: %s\n", platform)
-			
+
 			// Check platform authentication
-			if platform == types.PlatformGitHub {
+			switch platform {
+			case types.PlatformGitHub:
 				client, err := platforms.NewGitHubClient(status.RemoteURL)
 				if err == nil && client.IsAuthenticated() {
 					fmt.Println("   ✅ GitHub CLI authenticated")
 				} else {
 					fmt.Println("   ❌ GitHub CLI not authenticated (run: gh auth login)")
 				}
-			} else if platform == types.PlatformGitLab {
+			case types.PlatformGitLab:
 				client, err := platforms.NewGitLabClient(status.RemoteURL)
 				if err == nil && client.IsAuthenticated() {
 					fmt.Println("   ✅ GitLab CLI authenticated")
@@ -81,7 +82,7 @@ func runStatus(cmd *cobra.Command, args []string) error {
 	} else {
 		fmt.Println("   ⚠️  No remote repository configured")
 	}
-	
+
 	// Show changes
 	fmt.Println("\n📝 Working Directory Status:")
 	if status.HasChanges {
@@ -97,33 +98,33 @@ func runStatus(cmd *cobra.Command, args []string) error {
 	} else {
 		fmt.Println("   ✅ Working directory clean")
 	}
-	
+
 	// Show commit status
 	if status.CommitsAhead > 0 || status.CommitsBehind > 0 {
-		fmt.Printf("   📊 Branch status: %d ahead, %d behind %s\n", 
+		fmt.Printf("   📊 Branch status: %d ahead, %d behind %s\n",
 			status.CommitsAhead, status.CommitsBehind, status.BaseBranch)
 	}
-	
+
 	// Check AI providers
 	fmt.Println("\n🤖 AI Provider Status:")
-	
+
 	// Check Claude CLI
 	if isClaudeAvailable() {
 		fmt.Println("   ✅ Claude CLI available")
 	} else {
 		fmt.Println("   ❌ Claude CLI not found")
 	}
-	
+
 	// Check for Gemini API key
 	if hasGeminiAPIKey() {
 		fmt.Println("   ✅ Gemini API key configured")
 	} else {
 		fmt.Println("   ❌ Gemini API key not configured")
 	}
-	
+
 	// Check configuration
 	fmt.Println("\n⚙️  Configuration Status:")
-	
+
 	// Try to load config
 	configExists := checkConfigExists()
 	if configExists {
@@ -131,7 +132,7 @@ func runStatus(cmd *cobra.Command, args []string) error {
 	} else {
 		fmt.Println("   ❌ Configuration file not found (run: auto-pr config init)")
 	}
-	
+
 	// Show commit history if available
 	if status.RemoteURL != "" {
 		fmt.Println("\n📚 Recent Commits:")
@@ -144,7 +145,7 @@ func runStatus(cmd *cobra.Command, args []string) error {
 			fmt.Println("   No commits found")
 		}
 	}
-	
+
 	// PR readiness check
 	fmt.Println("\n🚀 PR Creation Readiness:")
 	if !gitAnalyzer.IsGitRepository() {
@@ -158,7 +159,7 @@ func runStatus(cmd *cobra.Command, args []string) error {
 	} else {
 		fmt.Println("   ✅ Ready to create PR/MR!")
 	}
-	
+
 	return nil
 }
 
@@ -184,3 +185,4 @@ func checkConfigExists() bool {
 	_, err := os.Stat(configPath)
 	return err == nil
 }
+

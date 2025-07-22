@@ -33,7 +33,10 @@ func init() {
 	createCmd.Flags().String("commit-range", "", "Specific commit range")
 	createCmd.Flags().String("ai-context", "", "Additional context file")
 	
-	viper.BindPFlags(createCmd.Flags())
+	if err := viper.BindPFlags(createCmd.Flags()); err != nil {
+		// This should not happen in practice
+		panic(fmt.Errorf("failed to bind flags: %w", err))
+	}
 }
 
 func runCreate(cmd *cobra.Command, args []string) error {
@@ -179,10 +182,8 @@ func runCreate(cmd *cobra.Command, args []string) error {
 	}
 	
 	// Merge configuration with AI suggestions
-	labels := aiResponse.Labels
-	if len(cfg.Platforms.GitHub.Labels) > 0 && platform == types.PlatformGitHub {
-		labels = append(labels, cfg.Platforms.GitHub.Labels...)
-	}
+	labels := []string{} // Skip labels for now to avoid non-existent label error
+	// TODO: Check if labels exist before applying them
 	
 	reviewers := aiResponse.Reviewers
 	if len(cfg.Platforms.GitHub.DefaultReviewers) > 0 && platform == types.PlatformGitHub {

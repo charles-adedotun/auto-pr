@@ -74,7 +74,7 @@ func ValidateConfig(config *types.Config) error {
 	
 	// Validate Git configuration
 	if err := validateGitConfig(&config.Git); err != nil {
-		return fmt.Errorf("Git configuration error: %w", err)
+		return fmt.Errorf("git configuration error: %w", err)
 	}
 	
 	return nil
