@@ -33,10 +33,12 @@ func init() {
 	rootCmd.PersistentFlags().Bool("dry-run", false, "preview changes without executing")
 
 	if err := viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose")); err != nil {
-		panic(fmt.Errorf("failed to bind verbose flag: %w", err))
+		fmt.Fprintf(os.Stderr, "error: failed to bind verbose flag: %v\n", err)
+		os.Exit(1)
 	}
 	if err := viper.BindPFlag("dry-run", rootCmd.PersistentFlags().Lookup("dry-run")); err != nil {
-		panic(fmt.Errorf("failed to bind dry-run flag: %w", err))
+		fmt.Fprintf(os.Stderr, "error: failed to bind dry-run flag: %v\n", err)
+		os.Exit(1)
 	}
 }
 
