@@ -191,6 +191,30 @@ func (g *GitLabClient) GetCLIPath() string {
 	return g.cliPath
 }
 
+// ListLabels returns all label names defined in the repository.
+func (g *GitLabClient) ListLabels() ([]string, error) {
+	cmd := exec.Command(g.cliPath, "label", "list",
+		"--repo", g.projectID,
+		"--output", "json")
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list labels: %w", err)
+	}
+
+	var items []struct {
+		Name string `json:"name"`
+	}
+	if err := json.Unmarshal(output, &items); err != nil {
+		return nil, fmt.Errorf("failed to parse label list: %w", err)
+	}
+
+	names := make([]string, len(items))
+	for i, item := range items {
+		names[i] = item.Name
+	}
+	return names, nil
+}
+
 // getMRDetails gets detailed information about an MR from its URL
 func (g *GitLabClient) getMRDetails(mrURL string) (*types.PullRequest, error) {
 	// Extract MR IID from URL

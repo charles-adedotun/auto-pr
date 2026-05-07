@@ -21,4 +21,32 @@ type PlatformClient interface {
 
 	// GetCLIPath returns the path to the platform's CLI tool
 	GetCLIPath() string
+
+	// ListLabels returns all label names defined in the repository
+	ListLabels() ([]string, error)
+}
+
+// FilterExistingLabels returns only those labels from candidates that exist in the repository.
+func FilterExistingLabels(client PlatformClient, candidates []string) ([]string, error) {
+	if len(candidates) == 0 {
+		return []string{}, nil
+	}
+	existing, err := client.ListLabels()
+	if err != nil {
+		return []string{}, err
+	}
+	set := make(map[string]struct{}, len(existing))
+	for _, l := range existing {
+		set[l] = struct{}{}
+	}
+	var filtered []string
+	for _, c := range candidates {
+		if _, ok := set[c]; ok {
+			filtered = append(filtered, c)
+		}
+	}
+	if filtered == nil {
+		return []string{}, nil
+	}
+	return filtered, nil
 }
