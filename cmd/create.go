@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"auto-pr/internal/ai"
 	"auto-pr/internal/config"
@@ -36,8 +37,8 @@ func init() {
 	createCmd.Flags().String("ai-context", "", "Additional context file")
 
 	if err := viper.BindPFlags(createCmd.Flags()); err != nil {
-		// This should not happen in practice
-		panic(fmt.Errorf("failed to bind flags: %w", err))
+		fmt.Fprintf(os.Stderr, "error: failed to bind create flags: %v\n", err)
+		os.Exit(1)
 	}
 }
 
@@ -213,9 +214,15 @@ func runCreate(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	// Merge configuration with AI suggestions
-	labels := []string{} // Skip labels for now to avoid non-existent label error
-	// TODO: Check if labels exist before applying them
+	// Filter AI-suggested labels to only those that exist in the repository,
+	// so we don't attempt to apply a label that hasn't been created yet.
+	labels, err := platforms.FilterExistingLabels(platformClient, aiResponse.Labels)
+	if err != nil {
+		if verbose {
+			fmt.Printf("Warning: failed to verify labels, skipping: %v\n", err)
+		}
+		labels = []string{}
+	}
 
 	reviewers := aiResponse.Reviewers
 	if len(cfg.Platforms.GitHub.DefaultReviewers) > 0 && platform == types.PlatformGitHub {
