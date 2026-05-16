@@ -10,8 +10,6 @@ Auto PR is an experimental Go CLI for generating pull request and merge request 
 
 This project is usable as a local workflow tool, but some previously advertised features are still incomplete. Treat the MCP server mode and advanced platform metadata as work in progress.
 
-Recommended profile action: keep unpinned unless actively maintained. If kept public, use topics that match the implementation: `go`, `cli`, `github-cli`, `gitlab`, `claude-code`, `pull-requests`, `automation`.
-
 ## What Works Today
 
 - Generate PR/MR title and body text using the local `claude` command.
@@ -84,6 +82,28 @@ auto-pr ship
 ```
 
 `ship` may stage files, create a branch, commit, push, and create a PR. Use `--dry-run` first on important branches.
+
+## Example PR/MR Output
+
+Before creating a PR or MR, `auto-pr create --dry-run` gathers branch metadata, recent commits, and file-level diff stats, then asks the local `claude` CLI for structured PR content.
+
+Example generated body:
+
+```markdown
+## Summary
+Add a dry-run preview path for pull request creation.
+
+## Changes
+- Analyze the current branch against the detected base branch.
+- Summarize changed files, additions, and deletions for Claude.
+- Preview the generated title, body, labels, reviewers, priority, and provider.
+
+## Testing
+- go test ./...
+- auto-pr create --dry-run
+```
+
+With a built-in template such as `--template feature`, the generated body is expanded with file changes, statistics, a checklist, and related issue placeholders.
 
 ## Configuration
 
