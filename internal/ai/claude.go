@@ -127,7 +127,7 @@ func (c *ClaudeClient) buildPrompt(ctx *AIContext, basePrompt string) string {
 			if len(hashDisplay) > 8 {
 				hashDisplay = hashDisplay[:8]
 			}
-			prompt.WriteString(fmt.Sprintf("- %s: %s\n", hashDisplay, commit.Message))
+			fmt.Fprintf(&prompt, "- %s: %s\n", hashDisplay, commit.Message)
 		}
 		prompt.WriteString("\n")
 	}
@@ -141,17 +141,17 @@ func (c *ClaudeClient) buildPrompt(ctx *AIContext, basePrompt string) string {
 	if len(ctx.FileChanges) > 0 {
 		prompt.WriteString("## Files Changed:\n")
 		for _, file := range ctx.FileChanges {
-			prompt.WriteString(fmt.Sprintf("- %s (%s): +%d -%d\n",
-				file.Path, file.Status, file.Additions, file.Deletions))
+			fmt.Fprintf(&prompt, "- %s (%s): +%d -%d\n",
+				file.Path, file.Status, file.Additions, file.Deletions)
 		}
 		prompt.WriteString("\n")
 	}
 
 	// Add project context
 	if ctx.ProjectContext.Language != "" {
-		prompt.WriteString(fmt.Sprintf("## Project Info:\n- Language: %s\n", ctx.ProjectContext.Language))
+		fmt.Fprintf(&prompt, "## Project Info:\n- Language: %s\n", ctx.ProjectContext.Language)
 		if ctx.ProjectContext.Framework != "" {
-			prompt.WriteString(fmt.Sprintf("- Framework: %s\n", ctx.ProjectContext.Framework))
+			fmt.Fprintf(&prompt, "- Framework: %s\n", ctx.ProjectContext.Framework)
 		}
 		prompt.WriteString("\n")
 	}
