@@ -31,7 +31,7 @@ Perfect for when you just want to ship your changes quickly!`,
 
 func init() {
 	rootCmd.AddCommand(shipCmd)
-	
+
 	shipCmd.Flags().StringP("message", "m", "", "Custom commit message (skips AI generation)")
 	shipCmd.Flags().Bool("draft", false, "Create PR as draft")
 	shipCmd.Flags().StringSlice("reviewer", []string{}, "Add reviewers to the PR")
@@ -68,9 +68,9 @@ func runShip(cmd *cobra.Command, args []string) error {
 
 	// Smart workflow - only do what's needed
 	needsCommit := len(status.UnstagedFiles) > 0 || len(status.UntrackedFiles) > 0 || len(status.StagedFiles) > 0
-	needsPush := status.CommitsAhead > 0 // Will be true after we commit
+	needsPush := status.CommitsAhead > 0                  // Will be true after we commit
 	canCreatePR := needsCommit || status.CommitsAhead > 0 // Can create PR if we have changes or unpushed commits
-	
+
 	if !canCreatePR {
 		fmt.Println("📭 No changes to ship - working directory is clean and up to date")
 		return nil
@@ -78,7 +78,7 @@ func runShip(cmd *cobra.Command, args []string) error {
 
 	// 🧠 SMART: Generate comprehensive AI plan upfront for all workflow data
 	fmt.Println("🧠 Analyzing changes and generating comprehensive workflow plan...")
-	
+
 	workflowPlan, err := generateComprehensiveWorkflowPlan(gitAnalyzer, status, message, dryRun)
 	if err != nil {
 		fmt.Printf("⚠️  Failed to generate AI workflow plan: %v\n", err)
@@ -94,11 +94,11 @@ func runShip(cmd *cobra.Command, args []string) error {
 			NeedsPush:     needsCommit, // Will be true after commit
 		}
 	}
-	
+
 	// SUPER SMART: If we're on main/master and have changes, create a feature branch first
 	if workflowPlan.NeedsBranch && needsCommit {
 		fmt.Println("🌿 On default branch with changes - creating feature branch...")
-		
+
 		if dryRun {
 			fmt.Printf("   Would create feature branch: %s\n", workflowPlan.BranchName)
 		} else {
@@ -114,9 +114,9 @@ func runShip(cmd *cobra.Command, args []string) error {
 	// Step 1: Commit (only if needed)
 	if needsCommit {
 		fmt.Printf("📦 Step %d: Committing changes...\n", stepNum)
-		
+
 		if dryRun {
-			fmt.Printf("   Would stage %d unstaged, %d untracked, %d staged files\n", 
+			fmt.Printf("   Would stage %d unstaged, %d untracked, %d staged files\n",
 				len(status.UnstagedFiles), len(status.UntrackedFiles), len(status.StagedFiles))
 			commitMsg := message
 			if commitMsg == "" && workflowPlan.CommitMessage != "" {
@@ -134,7 +134,7 @@ func runShip(cmd *cobra.Command, args []string) error {
 			}
 			commitCmd.Flags().String("message", commitMsg, "")
 			commitCmd.Flags().Bool("dry-run", false, "") // We handle dry-run here
-			
+
 			if err := runCommit(commitCmd, []string{}); err != nil {
 				return fmt.Errorf("commit failed: %w", err)
 			}
@@ -146,7 +146,7 @@ func runShip(cmd *cobra.Command, args []string) error {
 	// Step 2: Push (only if needed and not disabled)
 	if needsPush && !noPush {
 		fmt.Printf("🌐 Step %d: Pushing to remote...\n", stepNum)
-		
+
 		if dryRun {
 			fmt.Println("   Would push commits to remote")
 		} else {
@@ -161,7 +161,7 @@ func runShip(cmd *cobra.Command, args []string) error {
 	// Step 3: Create PR (only if not disabled)
 	if !noPR {
 		fmt.Printf("🔀 Step %d: Creating pull request...\n", stepNum)
-		
+
 		if dryRun {
 			fmt.Printf("   Would create PR with title: %s\n", workflowPlan.PRTitle)
 			if workflowPlan.PRBody != "" {
@@ -176,7 +176,7 @@ func runShip(cmd *cobra.Command, args []string) error {
 			createCmd.Flags().Bool("draft", draft, "")
 			createCmd.Flags().StringSlice("reviewer", reviewers, "")
 			createCmd.Flags().Bool("dry-run", false, "") // We handle dry-run here
-			
+
 			if err := runCreate(createCmd, []string{}); err != nil {
 				return fmt.Errorf("PR creation failed: %w", err)
 			}
@@ -187,7 +187,7 @@ func runShip(cmd *cobra.Command, args []string) error {
 		fmt.Println("🔍 Dry run complete - no changes made")
 	} else {
 		fmt.Println("🎉 Ship complete! Your changes are live!")
-		
+
 		if noPR {
 			fmt.Println("   💡 Run 'auto-pr pr' to create a pull request")
 		}
@@ -240,7 +240,7 @@ func generateComprehensiveWorkflowPlan(gitAnalyzer *git.Analyzer, status *types.
 	// Get comprehensive context for AI
 	diffContent, _ := getGitDiffContent()
 	isOnDefault := status.CurrentBranch == "main" || status.CurrentBranch == "master"
-	
+
 	// Analyze existing branch patterns for intelligent naming
 	branchPattern, _ := analyzeExistingBranchPatterns()
 
@@ -309,28 +309,28 @@ func getGitDiffContent() (string, error) {
 
 func buildFileChangesFromStatus(status *types.GitStatus) []types.FileChange {
 	var changes []types.FileChange
-	
+
 	for _, file := range status.UnstagedFiles {
 		changes = append(changes, types.FileChange{
 			Path:   file,
 			Status: types.StatusModified,
 		})
 	}
-	
+
 	for _, file := range status.UntrackedFiles {
 		changes = append(changes, types.FileChange{
 			Path:   file,
 			Status: types.StatusUntracked,
 		})
 	}
-	
+
 	for _, file := range status.StagedFiles {
 		changes = append(changes, types.FileChange{
 			Path:   file,
 			Status: types.StatusModified,
 		})
 	}
-	
+
 	return changes
 }
 
@@ -340,16 +340,16 @@ func analyzeExistingBranchPatterns() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	branches := strings.Split(string(output), "\n")
 	patterns := make(map[string]int)
-	
+
 	for _, branch := range branches {
 		branch = strings.TrimSpace(branch)
 		if branch == "" || strings.Contains(branch, "HEAD") {
 			continue
 		}
-		
+
 		// Extract pattern (feature/, fix/, docs/, etc.)
 		if strings.Contains(branch, "/") {
 			parts := strings.Split(branch, "/")
@@ -362,7 +362,7 @@ func analyzeExistingBranchPatterns() (string, error) {
 			}
 		}
 	}
-	
+
 	// Find most common pattern
 	mostCommon := "feature/"
 	maxCount := 0
@@ -372,46 +372,46 @@ func analyzeExistingBranchPatterns() (string, error) {
 			maxCount = count
 		}
 	}
-	
+
 	return mostCommon, nil
 }
 
 func buildComprehensiveWorkflowPrompt(status *types.GitStatus, diffContent, branchPattern string, isOnDefault bool) string {
 	var promptBuilder strings.Builder
-	
+
 	promptBuilder.WriteString("Analyze the repository changes and generate a comprehensive workflow plan.\n\n")
-	
+
 	// Repository context
 	promptBuilder.WriteString("REPOSITORY CONTEXT:\n")
-	promptBuilder.WriteString(fmt.Sprintf("- Current branch: %s\n", status.CurrentBranch))
-	promptBuilder.WriteString(fmt.Sprintf("- Common branch pattern: %s\n", branchPattern))
+	fmt.Fprintf(&promptBuilder, "- Current branch: %s\n", status.CurrentBranch)
+	fmt.Fprintf(&promptBuilder, "- Common branch pattern: %s\n", branchPattern)
 	if isOnDefault {
 		promptBuilder.WriteString("- STATUS: On default branch - will create feature branch\n")
 	} else {
 		promptBuilder.WriteString("- STATUS: On feature branch - can commit directly\n")
 	}
-	
+
 	// Changes context
 	promptBuilder.WriteString("\nCHANGES ANALYSIS:\n")
 	if diffContent != "" {
-		promptBuilder.WriteString(fmt.Sprintf("Diff summary:\n%s\n", diffContent))
+		fmt.Fprintf(&promptBuilder, "Diff summary:\n%s\n", diffContent)
 	}
-	
+
 	files := append(status.UnstagedFiles, status.UntrackedFiles...)
 	if len(files) > 0 {
-		promptBuilder.WriteString(fmt.Sprintf("Files affected: %s\n", strings.Join(files, ", ")))
+		fmt.Fprintf(&promptBuilder, "Files affected: %s\n", strings.Join(files, ", "))
 	}
-	
+
 	// Task specification
 	promptBuilder.WriteString("\nTASK: Generate a JSON response with ALL workflow elements:\n")
-	
+
 	var jsonFields []string
-	
+
 	if isOnDefault {
-		promptBuilder.WriteString(fmt.Sprintf("- Create meaningful branch name using pattern '%s' based on actual changes\n", branchPattern))
+		fmt.Fprintf(&promptBuilder, "- Create meaningful branch name using pattern '%s' based on actual changes\n", branchPattern)
 		jsonFields = append(jsonFields, `"branch_name": "meaningful-name-based-on-changes"`)
 	}
-	
+
 	jsonFields = append(jsonFields,
 		`"commit_message": "conventional commit message based on actual changes"`,
 		`"pr_title": "Clear descriptive title"`,
@@ -419,11 +419,11 @@ func buildComprehensiveWorkflowPrompt(status *types.GitStatus, diffContent, bran
 		`"labels": ["appropriate", "labels"]`,
 		`"priority": "medium"`,
 	)
-	
+
 	promptBuilder.WriteString("\nRESPOND WITH ONLY THIS JSON:\n{\n  ")
 	promptBuilder.WriteString(strings.Join(jsonFields, ",\n  "))
 	promptBuilder.WriteString("\n}")
-	
+
 	return promptBuilder.String()
 }
 
@@ -456,7 +456,7 @@ func generateFallbackBranchName(diffContent, pattern string) string {
 	if strings.Contains(diffContent, "doc") {
 		return pattern + "update-docs"
 	}
-	
+
 	// Generic fallback
 	return pattern + "update-changes"
 }
@@ -471,7 +471,6 @@ func generateFallbackCommitMessage(diffContent string) string {
 	if strings.Contains(diffContent, "fix") {
 		return "fix: resolve issues"
 	}
-	
+
 	return "feat: update implementation"
 }
-
