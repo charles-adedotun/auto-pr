@@ -87,6 +87,29 @@ func runMCPLoop(gitAnalyzer *git.Analyzer) error {
 
 func handleMCPRequest(request MCPRequest, gitAnalyzer *git.Analyzer) MCPResponse {
 	switch request.Method {
+	case "initialize":
+		return MCPResponse{
+			JsonRPC: "2.0",
+			ID:      request.ID,
+			Result: map[string]interface{}{
+				"protocolVersion": "2024-11-05",
+				"capabilities": map[string]interface{}{
+					"tools": map[string]interface{}{},
+				},
+				"serverInfo": map[string]interface{}{
+					"name":    "auto-pr-mcp",
+					"version": "1.0.0",
+				},
+			},
+		}
+
+	case "notifications/initialized":
+		return MCPResponse{
+			JsonRPC: "2.0",
+			ID:      request.ID,
+			Result:  map[string]interface{}{},
+		}
+
 	case "tools/list":
 		return MCPResponse{
 			JsonRPC: "2.0",
@@ -170,8 +193,35 @@ func handleMCPRequest(request MCPRequest, gitAnalyzer *git.Analyzer) MCPResponse
 }
 
 func handleToolCall(request MCPRequest, gitAnalyzer *git.Analyzer) MCPResponse {
-	// This is a simplified implementation
-	// In a full implementation, you would parse the params and call the appropriate tool
+	if paramsMap, ok := request.Params.(map[string]interface{}); ok {
+		if toolName, _ := paramsMap["name"].(string); toolName == "repo_status" && gitAnalyzer != nil {
+			status, err := gitAnalyzer.GetStatus()
+			if err != nil {
+				return MCPResponse{
+					JsonRPC: "2.0",
+					ID:      request.ID,
+					Error: &MCPError{
+						Code:    -32000,
+						Message: fmt.Sprintf("Failed to get repo status: %v", err),
+					},
+				}
+			}
+			statusJSON, _ := json.MarshalIndent(status, "", "  ")
+			return MCPResponse{
+				JsonRPC: "2.0",
+				ID:      request.ID,
+				Result: map[string]interface{}{
+					"content": []map[string]interface{}{
+						{
+							"type": "text",
+							"text": string(statusJSON),
+						},
+					},
+				},
+			}
+		}
+	}
+
 	return MCPResponse{
 		JsonRPC: "2.0",
 		ID:      request.ID,
